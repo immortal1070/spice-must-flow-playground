@@ -1,0 +1,59 @@
+# TODO add indexes
+databaseChangeLog:
+  - changeSet:
+      id: 03_recipe_ingredient
+      author: immortal
+      changes:
+        - createTable:
+            tableName: recipe_ingredient
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: recipe_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_recipe_ingredient_to_recipe
+                    references: recipe(id)
+              - column:
+                  name: ingredient_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_recipe_ingredient_to_ingredient
+                    references: ingredient(id)
+              - column:
+                  name: amount
+                  type: float
+                  constraints:
+                    nullable: false
+#             TODO separate table with units
+              - column:
+                  name: measurement_unit
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: datetime
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creator
+                  type: varchar(200)
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: updater
+                  type: varchar(200)
+
+          addUniqueConstraint:
+            tableName: recipe_ingredient
+            columnNames: recipe_id, ingredient_id
+            constraintName: uc_recipe_ingredient_pair
