@@ -1,6 +1,6 @@
 # spice-must-flow
 
-### Running the application with Maven
+### Running the application with Gradle
 You can start the application by running:
 ```
 ./gradlew bootRun
