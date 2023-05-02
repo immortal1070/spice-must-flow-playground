@@ -1,6 +1,10 @@
 package io.immortal.spicemustflow.infrastructure.configuration
 
 import io.immortal.spicemustflow.infrastructure.exception.ObjectNotFoundException
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.ExampleObject
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.ConstraintViolationException
 import mu.KotlinLogging
 import org.springframework.http.*
@@ -37,8 +41,31 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
     @ExceptionHandler(value = [ConstraintViolationException::class])
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    fun onConstraintValidationException(e: ConstraintViolationException): ResponseEntity<Any> {
-        return errorResponse(e, buildValidationErrors(e))
+    @ApiResponse(
+        responseCode = "400",
+        description = "Bad Request",
+        content = [Content(
+            mediaType = "application/problem+json",
+            schema = Schema(implementation = ProblemDetail::class),
+            examples = [ExampleObject(
+                value = """{
+                      "type": "errortype",
+                      "title": "Validation exception",
+                      "status": 400,
+                      "detail": "Validation exception detail",
+                      "instance": "/ingredients/",
+                      "errors": {
+                        "message": "failed",
+                        "path": "...",
+                        "invalidValue": "123"
+                      }
+                    }"""
+            )]
+        )]
+    )
+
+    fun onConstraintValidationException(e: ConstraintViolationException): ResponseEntity<ProblemDetail> {
+        return buildErrorResponseEntity(e, buildValidationErrors(e)) { body -> body }
     }
 
     override fun handleMethodArgumentNotValid(
@@ -47,22 +74,43 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
         status: HttpStatusCode,
         request: WebRequest
     ): ResponseEntity<Any>? {
-        return errorResponse(e, buildValidationErrors(e))
+        return buildErrorResponseEntity(e, buildValidationErrors(e)) { body -> body }
     }
 
-    private fun errorResponse(e: Throwable, errors: List<ViolationError>): ResponseEntity<Any> {
-        val errorResponse = ErrorResponse.builder(
-            e,
-            HttpStatus.BAD_REQUEST,
-            ERROR_TITLE
-        )
-            .property("errors", errors).build()
-        return ResponseEntity<Any>(
-            errorResponse.body,
+    //problemTypeConverter is used to convert a type of body to the needed subtype
+    private fun <T> buildErrorResponseEntity(
+        e: Throwable,
+        validationErrors: List<ViolationError>,
+        problemTypeConverter: (ProblemDetail) -> T
+    ): ResponseEntity<T> {
+        val errorResponse: ErrorResponse = buildErrorResponse(e, validationErrors)
+        return ResponseEntity<T>(
+            problemTypeConverter(errorResponse.body),
             errorResponse.headers,
             errorResponse.statusCode
         )
     }
+
+//
+//    private fun buildErrorResponseEntity(
+//        e: Throwable,
+//        validationErrors: List<ViolationError>
+//    ): ResponseEntity<ProblemDetail> {
+//        val errorResponse: ErrorResponse = buildErrorResponse(e, validationErrors)
+//        return ResponseEntity<ProblemDetail>(
+//            errorResponse.body,
+//            errorResponse.headers,
+//            errorResponse.statusCode
+//        )
+//    }
+
+    private fun buildErrorResponse(e: Throwable, errors: List<ViolationError>): ErrorResponse = ErrorResponse.builder(
+        e,
+        HttpStatus.BAD_REQUEST,
+        ERROR_TITLE
+    ).property("errors", errors)
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .build()
 
     private fun buildValidationErrors(e: MethodArgumentNotValidException): List<ViolationError> {
         val fieldErrors: List<ViolationError> = e.bindingResult.fieldErrors.map {

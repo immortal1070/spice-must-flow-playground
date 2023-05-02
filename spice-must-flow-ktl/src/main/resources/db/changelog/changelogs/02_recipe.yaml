@@ -1,7 +1,14 @@
 databaseChangeLog:
+  # without logicalFilePath scripts are executed twice from dev environment and docker environment
+  - logicalFilePath: /db/changelog/changelogs/02_recipe.yaml
   - changeSet:
       id: 02_recipe
       author: immortal
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: recipe
       changes:
         - createTable:
             tableName: recipe

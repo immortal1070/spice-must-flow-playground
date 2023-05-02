@@ -102,7 +102,14 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation(kotlin("test"))
     testImplementation("org.testcontainers:postgresql")
-
+//    <jmeter.version>0.63</jmeter.version>
+//
+//    <dependency>
+//    <groupId>us.abstracta.jmeter</groupId>
+//    <artifactId>jmeter-java-dsl</artifactId>
+//    <version>${jmeter.version}</version>
+//    <scope>test</scope>
+//    </dependency>
 //    testImplementation("org.testcontainers:r2dbc")
 //    testImplementation("org.testcontainers:rabbitmq")
 }
