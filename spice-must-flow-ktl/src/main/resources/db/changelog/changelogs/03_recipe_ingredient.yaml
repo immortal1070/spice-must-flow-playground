@@ -1,8 +1,16 @@
 # TODO add indexes
 databaseChangeLog:
+  # without logicalFilePath scripts are executed twice from dev environment and docker environment
+  - logicalFilePath: /db/changelog/changelogs/03_recipe_ingredient.yaml
   - changeSet:
       id: 03_recipe_ingredient
       author: immortal
+      onFail: MARK_RAN
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: recipe_ingredient
       changes:
         - createTable:
             tableName: recipe_ingredient

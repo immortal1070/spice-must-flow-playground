@@ -1,20 +1,50 @@
 package io.immortal.spicemustflow.infrastructure.configuration
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition
+import io.swagger.v3.oas.annotations.info.Info
+import io.swagger.v3.oas.annotations.servers.Server
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.MediaType
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
-
+//@SecuritySchemes(
+//    [SecurityScheme(
+//        securitySchemeName = BEARER_SECURITY_SCHEME,
+//        type = SecuritySchemeType.HTTP,
+//        `in` = SecuritySchemeIn.HEADER,
+//        description = BEARER_DESCRIPTION,
+//        bearerFormat = BEARER_FORMAT,
+//        scheme = BEARER_SCHEME,
+//        apiKeyName = HttpHeaders.AUTHORIZATION
+//    ), SecurityScheme(
+//        securitySchemeName = TENANT_SECURITY_SCHEME,
+//        type = SecuritySchemeType.APIKEY,
+//        `in` = SecuritySchemeIn.HEADER,
+//        apiKeyName = RestConstants.TENANT_ID_HEADER,
+//        description = TENANT_OPENAPI_DESCRIPTION
+//    ), SecurityScheme(
+//        securitySchemeName = CLIENT_CREDENTIALS_SECURITY_SCHEME,
+//        type = SecuritySchemeType.OAUTH2,
+//        `in` = SecuritySchemeIn.HEADER,
+//        description = CLIENT_CREDENTIALS_DESCRIPTION,
+//        flows = OAuthFlows(
+//            clientCredentials = OAuthFlow(
+//                authorizationUrl = CLIENT_CREDENTIALS_AUTH_URL,
+//                tokenUrl = CLIENT_CREDENTIALS_TOKEN_URL,
+//                scopes = [OAuthScope(name = CLIENT_CREDENTIALS_TOKEN_SCOPE)]
+//            )
+//        )
+//    )]
+//)
+@OpenAPIDefinition(
+    info = Info(
+        title = "Spice Must Flow API",
+        version = "0.1.0",
+        description = "Spice Must Flow is a project for storing and managing recipes from different ingredients"
+    ),
+    servers = [Server(url = "http://localhost:8080")]
+//    security = [SecurityRequirement(name = BEARER_SECURITY_SCHEME), SecurityRequirement(name = TENANT_SECURITY_SCHEME), SecurityRequirement(
+//        name = CLIENT_CREDENTIALS_SECURITY_SCHEME
+//    )]
+)
 @Configuration
-class OpenApiConfiguration : WebMvcConfigurer {
-    override fun configurePathMatch(configurer: PathMatchConfigurer) {
-        //for production should be set via Apache or similar
-        configurer.setUseTrailingSlashMatch(true)
-    }
-
-    override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
-        configurer.defaultContentType(MediaType.APPLICATION_JSON)
-    }
+class OpenApiConfiguration {
 }

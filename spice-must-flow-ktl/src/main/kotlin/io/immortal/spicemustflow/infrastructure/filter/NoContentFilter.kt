@@ -15,7 +15,6 @@ import java.io.IOException
  */
 @Component
 class NoContentFilter : OncePerRequestFilter() {
-    @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(
         request: HttpServletRequest,
         reponse: HttpServletResponse, filterChain: FilterChain

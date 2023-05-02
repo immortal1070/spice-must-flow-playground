@@ -1,0 +1,5 @@
+// Entity Ingredient
+
+Ingredient {
+  myfield : string ; // field example 
+}
