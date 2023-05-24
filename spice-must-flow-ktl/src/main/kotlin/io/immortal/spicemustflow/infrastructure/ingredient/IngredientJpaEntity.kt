@@ -13,11 +13,7 @@ import java.util.*
 @Entity
 @Table(name = "ingredient")
 @EntityListeners(BaseJpaEntityListener::class)
-// TODO is model a correct naming?
-class IngredientModel(
-    var name: String
-
-    ) : BaseJpaEntity {
+class IngredientJpaEntity(var name: String) : BaseJpaEntity {
 
     // TODO check hibernate version + postgres UUID generation
     @Id

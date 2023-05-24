@@ -1,6 +1,6 @@
 package io.immortal.spicemustflow.infrastructure.recipe
 
-import io.immortal.spicemustflow.infrastructure.ingredient.IngredientModel
+import io.immortal.spicemustflow.infrastructure.ingredient.IngredientJpaEntity
 import io.immortal.spicemustflow.util.persistence.BaseJpaEntity
 import io.immortal.spicemustflow.util.persistence.BaseJpaEntityListener
 import io.immortal.spicemustflow.util.persistence.ColumnConstants
@@ -17,18 +17,18 @@ private const val INGREDIENT_ID_COLUMN = "ingredient_id"
 @EntityListeners(BaseJpaEntityListener::class)
 class RecipeIngredientModel(
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+        @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = RECIPE_ID_COLUMN, nullable = false, updatable = false)
     private val recipe: RecipeModel,
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+        @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = INGREDIENT_ID_COLUMN, nullable = false, updatable = false)
-    private val ingredient: IngredientModel,
+    private val ingredient: IngredientJpaEntity,
 
-    @Column(name = "amount", nullable = false)
+        @Column(name = "amount", nullable = false)
     var amount: Float,
 
-    @Column(name = "measurement_unit", nullable = false)
+        @Column(name = "measurement_unit", nullable = false)
     var measurementUnit: String
 
     ) : BaseJpaEntity {

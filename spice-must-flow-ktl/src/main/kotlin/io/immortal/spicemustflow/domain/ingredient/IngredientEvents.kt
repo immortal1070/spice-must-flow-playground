@@ -1,10 +1,7 @@
-package io.immortal.spicemustflow.domain.ingredient.event
-
-import io.immortal.spicemustflow.domain.ingredient.Ingredient
-import java.util.*
+package io.immortal.spicemustflow.domain.ingredient
 
 data class IngredientEventDto(
-    val id: UUID,
+    val id: IngredientId,
     var name: String
 ) {
     constructor(ingredient: Ingredient) : this(ingredient.id, ingredient.name)

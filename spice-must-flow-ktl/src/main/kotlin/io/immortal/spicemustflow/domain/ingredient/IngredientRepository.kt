@@ -1,12 +1,12 @@
 package io.immortal.spicemustflow.domain.ingredient
 
-import java.util.*
-
 interface IngredientRepository {
-    fun create(name: String): Ingredient
-    fun update(id: UUID, name: String): Ingredient
-    fun delete(id: UUID)
-    fun delete(ids: List<UUID>)
-    fun findById(id: UUID): Ingredient?
-    fun find(params: IngredientFindParams): List<Ingredient>
+//    fun create(saveCommand: IngredientSaveCommand): Ingredient
+//    fun update(id: UUID, saveCommand: IngredientSaveCommand): Ingredient
+    fun save(ingredient: Ingredient): Ingredient
+    fun delete(id: IngredientId)
+    fun delete(ids: List<IngredientId>)
+    fun findById(id: IngredientId): Ingredient?
+    fun find(query: IngredientQuery): List<Ingredient>
+    fun generateId(): IngredientId
 }

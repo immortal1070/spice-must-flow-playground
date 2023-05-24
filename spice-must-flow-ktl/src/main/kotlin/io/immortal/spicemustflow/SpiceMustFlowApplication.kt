@@ -13,4 +13,5 @@ class SpiceMustFlowApplication
 
 fun main(args: Array<String>) {
     runApplication<SpiceMustFlowApplication>(*args)
+//    ContextLoader.getCurrentWebApplicationContext().get
 }
