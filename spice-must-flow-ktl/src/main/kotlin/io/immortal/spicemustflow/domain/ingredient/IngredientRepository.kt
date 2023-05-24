@@ -1,8 +1,6 @@
 package io.immortal.spicemustflow.domain.ingredient
 
 interface IngredientRepository {
-//    fun create(saveCommand: IngredientSaveCommand): Ingredient
-//    fun update(id: UUID, saveCommand: IngredientSaveCommand): Ingredient
     fun save(ingredient: Ingredient): Ingredient
     fun delete(id: IngredientId)
     fun delete(ids: List<IngredientId>)

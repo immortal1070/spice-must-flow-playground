@@ -7,9 +7,13 @@ import org.springframework.stereotype.Component
 @Component
 class IngredientJpaTransformer {
     fun toIngredient(entity: IngredientJpaEntity): Ingredient = entity.run {
+        val entityId = id
+        if (entityId == null) {
+            throw IllegalStateException("Provide entity id before converting to aggregate!")
+        }
         Ingredient(
-            id = IngredientId(id!!), //TODO find better way
-            name = name,
+            id = IngredientId(entityId),
+            name = name
         )
     }
 
