@@ -45,16 +45,6 @@ class IngredientService(
             publisher.publishEvent(IngredientUpdated(IngredientEventDto(it)))
         }
     }
-//
-//    fun create(saveCommand: IngredientSaveCommand): Ingredient =
-//        ingredientRepository.create(saveCommand).also {
-//            publisher.publishEvent(IngredientCreated(IngredientEventDto(it)))
-//        }
-//
-//    fun update(id: UUID, saveCommand: IngredientSaveCommand): Ingredient =
-//        ingredientRepository.update(id, saveCommand).also {
-//            publisher.publishEvent(IngredientUpdated(IngredientEventDto(it)))
-//        }
 
     fun delete(ids: List<IngredientId>) {
         ingredientRepository.find(IngredientQuery(ids = ids))
