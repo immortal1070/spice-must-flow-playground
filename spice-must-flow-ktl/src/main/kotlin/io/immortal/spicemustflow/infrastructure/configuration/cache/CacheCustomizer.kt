@@ -1,6 +1,6 @@
 //package io.immortal.spicemustflow.infrastructure.configuration.cache
 //
-//import io.immortal.spicemustflow.domain.ingredient.IngredientCaches
+//import io.immortal.spicemustflow.domain.constants.IngredientCaches
 //import io.immortal.spicemustflow.domain.ingredient.IngredientFindParams
 //import org.ehcache.config.builders.CacheConfigurationBuilder
 //import org.ehcache.config.builders.ResourcePoolsBuilder

@@ -1,6 +1,7 @@
 package io.immortal.spicemustflow.infrastructure.configuration
 
-import io.immortal.spicemustflow.domain.ingredient.IngredientCaches
+import io.immortal.spicemustflow.application.ingredient.cache.INGREDIENT_BY_ID_CACHE
+import io.immortal.spicemustflow.application.ingredient.cache.INGREDIENT_SEARCH_CACHE
 import org.springframework.cache.CacheManager
 import org.springframework.cache.concurrent.ConcurrentMapCache
 import org.springframework.cache.support.SimpleCacheManager
@@ -15,7 +16,8 @@ class CacheConfiguration {
         val cacheManager = SimpleCacheManager()
         cacheManager.setCaches(
             listOf(
-                ConcurrentMapCache(IngredientCaches.INGREDIENT_CACHE)
+                ConcurrentMapCache(INGREDIENT_BY_ID_CACHE),
+                ConcurrentMapCache(INGREDIENT_SEARCH_CACHE)
             )
         )
         return cacheManager
