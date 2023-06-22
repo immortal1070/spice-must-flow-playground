@@ -1,15 +1,15 @@
 package io.immortal.spicemustflow.application.ingredient.cache
 
+import io.immortal.spicemustflow.common.logging.MethodLogging
+import io.immortal.spicemustflow.common.stereotype.ApplicationScoped
 import io.immortal.spicemustflow.domain.ingredient.IngredientCreated
 import io.immortal.spicemustflow.domain.ingredient.IngredientDeleted
 import io.immortal.spicemustflow.domain.ingredient.IngredientId
 import io.immortal.spicemustflow.domain.ingredient.IngredientUpdated
-import io.immortal.spicemustflow.util.logging.MethodLogging
 import org.springframework.cache.annotation.CacheEvict
-import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionalEventListener
 
-@Component
+@ApplicationScoped
 @MethodLogging
 class IngredientCacheService {
     @CacheEvict(value = [INGREDIENT_BY_ID_CACHE])
@@ -20,8 +20,7 @@ class IngredientCacheService {
 }
 
 // in separate class because of CacheEvict
-// TODO check if internal methods can be used in the same class to evict cache
-@Component
+@ApplicationScoped
 @MethodLogging
 class IngredientCacheListeners(
     private val ingredientCacheService: IngredientCacheService
