@@ -1,17 +1,19 @@
 package io.immortal.spicemustflow.domain.ingredient
 
-import io.immortal.spicemustflow.clients.INGREDIENT_PARAM_NAME
-import io.immortal.spicemustflow.clients.IngredientDataCreator
-import io.immortal.spicemustflow.clients.IngredientTestClient
-import io.immortal.spicemustflow.clients.IngredientTestValidator
-import io.immortal.spicemustflow.resource.ingredient.dto.IngredientDto
-import io.immortal.spicemustflow.resource.ingredient.dto.IngredientRestSaveCommand
-import io.immortal.spicemustflow.util.CreatedData
-import io.immortal.spicemustflow.util.RestAssuredTest
-import io.immortal.spicemustflow.util.TestRandom.Companion.randomString
-import io.immortal.spicemustflow.util.TestResponse
-import io.immortal.spicemustflow.util.TestResponseWithBody
-import io.immortal.spicemustflow.util.constants.SizeConstants
+import io.immortal.spicemustflow.clients.ingredient.INGREDIENT_PARAM_NAME
+import io.immortal.spicemustflow.clients.ingredient.IngredientDataCreator
+import io.immortal.spicemustflow.clients.ingredient.IngredientTestClient
+import io.immortal.spicemustflow.clients.ingredient.IngredientTestValidator
+import io.immortal.spicemustflow.common.CreatedData
+import io.immortal.spicemustflow.common.TestResponse
+import io.immortal.spicemustflow.common.TestResponseWithBody
+import io.immortal.spicemustflow.common.constants.DEFAULT_STRING_SIZE
+import io.immortal.spicemustflow.common.restassured.RestAssuredTest
+import io.immortal.spicemustflow.common.utils.TestRandom.Companion.randomString
+import io.immortal.spicemustflow.common.validation.WebValidator
+import io.immortal.spicemustflow.web.resources.ingredient.INGREDIENT_PATH
+import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientDto
+import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestSaveCommand
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
@@ -24,7 +26,8 @@ import kotlin.test.assertNotNull
 class IngredientRestTests : RestAssuredTest() {
     private val client: IngredientTestClient = IngredientTestClient()
     private val dataCreator: IngredientDataCreator = IngredientDataCreator()
-    private val validator: IngredientTestValidator = IngredientTestValidator()
+    private val ingredientValidator: IngredientTestValidator = IngredientTestValidator()
+    private val webValidator: WebValidator = WebValidator()
 
     @AfterAll
     fun cleanup() {
@@ -40,16 +43,20 @@ class IngredientRestTests : RestAssuredTest() {
         val found: TestResponseWithBody<IngredientDto> = client.findById(createdId)
 
         assertThat(found.body.id).isEqualTo(createdId)
-        validator.validate(found.body, ingredientSaveCommand)
+        ingredientValidator.validate(found.body, ingredientSaveCommand)
         found.response.printAsPrettyString()
     }
 
     @Test
     fun `test ingredient creation with wrong parameter`() {
-        val ingredientSaveCommand = IngredientRestSaveCommand(incorrectName())
+        val invalidName = newInvalidName()
+        val ingredientSaveCommand = IngredientRestSaveCommand(invalidName)
         val createdResponse: TestResponse = client.createRequest(ingredientSaveCommand)
-        // TODO validate exact error
-        createdResponse.statusCode(HttpStatus.BAD_REQUEST.value())
+
+        webValidator.validateDefaultMaxSizeError(
+            response = createdResponse,
+            path = INGREDIENT_PATH,
+            invalidValue = invalidName)
     }
 
     @Test
@@ -65,18 +72,23 @@ class IngredientRestTests : RestAssuredTest() {
 
         val found: TestResponseWithBody<IngredientDto> = client.findById(created.body)
 
-        validator.validate(found.body, ingredientUpdateDto)
+        ingredientValidator.validate(found.body, ingredientUpdateDto)
     }
 
     @Test
     fun `test ingredient update with wrong parameter`() {
         val ingredientSaveCommand = IngredientRestSaveCommand(randomString())
         val created: TestResponseWithBody<IngredientId> = client.validCreate(ingredientSaveCommand)
+        val createdId: IngredientId = created.body
 
-        val ingredientUpdateDto = IngredientRestSaveCommand(incorrectName())
-        val updatedResponse = client.updateRequest(created.body, ingredientUpdateDto)
-        // TODO validate exact error
-        updatedResponse.statusCode(HttpStatus.BAD_REQUEST.value())
+        val invalidName = newInvalidName()
+        val ingredientUpdateDto = IngredientRestSaveCommand(invalidName)
+        val updatedResponse = client.updateRequest(createdId, ingredientUpdateDto)
+
+        webValidator.validateDefaultMaxSizeError(
+            response = updatedResponse,
+            path = "$INGREDIENT_PATH/$createdId",
+            invalidValue = invalidName)
     }
 
     @Test
@@ -155,5 +167,5 @@ class IngredientRestTests : RestAssuredTest() {
         return foundEntry
     }
 
-    private fun incorrectName(): String = randomString(SizeConstants.DEFAULT_STRING_SIZE + 1)
+    private fun newInvalidName(): String = randomString(DEFAULT_STRING_SIZE + 1)
 }

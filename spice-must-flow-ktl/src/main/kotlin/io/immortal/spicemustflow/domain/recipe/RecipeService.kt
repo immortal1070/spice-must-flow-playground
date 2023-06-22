@@ -1,7 +1,6 @@
 package io.immortal.spicemustflow.domain.recipe
 
-import io.immortal.spicemustflow.util.logging.MethodLogging
-import org.springframework.beans.factory.annotation.Autowired
+import io.immortal.spicemustflow.common.logging.MethodLogging
 import org.springframework.stereotype.Service
 import java.util.*
 
