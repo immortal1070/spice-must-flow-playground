@@ -11,7 +11,7 @@ You can start the application by running:
 ```
 ./gradlew bootRun
 ```
-And then check available REST endpoints at [http://localhost:8080/swagger-ui/index.html]
+And then check available REST endpoints at [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
 ### build and run with Docker
 First create a docker image with the following command:
