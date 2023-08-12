@@ -1,4 +1,4 @@
-package io.immortal.spicemustflow.application.validation
+package io.immortal.spicemustflow.application.recipe.validation
 
 import io.immortal.spicemustflow.domain.recipe.RecipeIngredient
 import jakarta.validation.ConstraintValidator

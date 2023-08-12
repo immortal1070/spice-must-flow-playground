@@ -1,4 +1,4 @@
-package io.immortal.spicemustflow.application.validation
+package io.immortal.spicemustflow.application.recipe.validation
 
 import jakarta.validation.Constraint
 import kotlin.reflect.KClass
