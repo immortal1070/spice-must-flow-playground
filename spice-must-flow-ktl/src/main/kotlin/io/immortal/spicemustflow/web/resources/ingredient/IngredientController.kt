@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
-import java.util.*
 
 const val INGREDIENT_PATH = "/v1/ingredients"
 
@@ -35,7 +34,8 @@ class IngredientController(
 
     @GetMapping(UUID_PATH, consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @Operation(
-        operationId = "getIngredientById"
+        operationId = "getIngredientById",
+        summary = "get an ingredient by id"
     )
     fun get(@PathVariable id: IngredientId): IngredientDto? {
         return ingredientService.findById(id)?.let { transformer.toDto(it) }
@@ -43,7 +43,8 @@ class IngredientController(
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @Operation(
-        operationId = "createIngredient"
+        operationId = "createIngredient",
+        summary = "create an ingredient"
     )
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@RequestBody saveCommand: IngredientRestSaveCommand): IngredientId {
@@ -52,7 +53,8 @@ class IngredientController(
 
     @PutMapping(UUID_PATH, consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @Operation(
-        operationId = "updateIngredient"
+        operationId = "updateIngredient",
+        summary = "update an ingredient"
     )
     fun update(@PathVariable id: IngredientId, @RequestBody saveCommand: IngredientRestSaveCommand) {
         ingredientService.update(id, transformer.toSaveCommand(saveCommand))
@@ -60,7 +62,8 @@ class IngredientController(
 
     @DeleteMapping(UUID_PATH)
     @Operation(
-        operationId = "deleteIngredientById"
+        operationId = "deleteIngredientById",
+        summary = "delete an ingredient by id"
     )
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(@PathVariable id: IngredientId) {
@@ -69,7 +72,8 @@ class IngredientController(
 
     @DeleteMapping
     @Operation(
-        operationId = "deleteIngredients"
+        operationId = "deleteIngredients",
+        summary = "delete a list of ingredients"
     )
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(@RequestParam(name = "id") ids: List<IngredientId>) {

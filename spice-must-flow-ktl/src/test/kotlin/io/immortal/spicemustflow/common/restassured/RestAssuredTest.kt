@@ -1,7 +1,9 @@
 package io.immortal.spicemustflow.common.restassured
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.immortal.spicemustflow.web.resources.ingredient.IngredientIdJacksonModule
+import io.immortal.spicemustflow.web.resources.recipe.RecipeIdJacksonModule
 import io.restassured.RestAssured
 import io.restassured.config.ObjectMapperConfig.objectMapperConfig
 import io.restassured.config.RestAssuredConfig
@@ -13,7 +15,7 @@ import java.lang.reflect.Type
 
 abstract class RestAssuredTest {
     @LocalServerPort
-    var port = 8888
+    var port = 8080
 
     @BeforeAll
     fun setup() {
@@ -37,6 +39,14 @@ abstract class RestAssuredTest {
     }
 
     private fun configureObjectMapper(objectMapper: ObjectMapper?) {
-        objectMapper?.registerModule(IngredientIdJacksonModule())
+        objectMapper
+            ?.registerModule(IngredientIdJacksonModule())
+            ?.registerModule(RecipeIdJacksonModule())
+    }
+
+    fun getObjectMapper(): ObjectMapper {
+        val objectMapper = jacksonObjectMapper()
+        configureObjectMapper(objectMapper)
+        return objectMapper
     }
 }

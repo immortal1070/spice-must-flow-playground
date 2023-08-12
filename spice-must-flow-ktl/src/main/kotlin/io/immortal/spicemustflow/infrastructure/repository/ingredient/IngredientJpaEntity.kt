@@ -2,12 +2,9 @@ package io.immortal.spicemustflow.infrastructure.repository.ingredient
 
 import io.immortal.spicemustflow.infrastructure.common.persistence.BaseJpaEntity
 import io.immortal.spicemustflow.infrastructure.common.persistence.BaseJpaEntityListener
-import io.immortal.spicemustflow.infrastructure.common.persistence.ColumnConstants.Companion.CREATED_AT
-import io.immortal.spicemustflow.infrastructure.common.persistence.ColumnConstants.Companion.CREATOR
-import io.immortal.spicemustflow.infrastructure.common.persistence.ColumnConstants.Companion.UPDATED_AT
-import io.immortal.spicemustflow.infrastructure.common.persistence.ColumnConstants.Companion.UPDATER
+import io.immortal.spicemustflow.infrastructure.common.persistence.JpaCreateInfo
+import io.immortal.spicemustflow.infrastructure.common.persistence.JpaUpdateInfo
 import jakarta.persistence.*
-import java.time.OffsetDateTime
 import java.util.*
 
 @Entity
@@ -15,21 +12,14 @@ import java.util.*
 @EntityListeners(BaseJpaEntityListener::class)
 class IngredientJpaEntity(var name: String) : BaseJpaEntity {
 
-    // TODO check hibernate version + postgres UUID generation
     @Id
     @GeneratedValue
     var id: UUID? = null
 
-    @Column(name = CREATOR, updatable = false)
-    override var creator: String? = null
+    @Embedded
+    override var createInfo: JpaCreateInfo? = null
 
-    @Column(name = CREATED_AT, updatable = false, nullable = false)
-    override var createdAt: OffsetDateTime? = null
-
-    @Column(name = UPDATER)
-    override var updater: String? = null
-
-    @Column(name = UPDATED_AT)
-    override var updatedAt: OffsetDateTime? = null
+    @Embedded
+    override var updateInfo: JpaUpdateInfo? = null
 }
 

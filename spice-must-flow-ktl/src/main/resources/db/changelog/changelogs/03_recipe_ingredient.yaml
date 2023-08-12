@@ -16,11 +16,6 @@ databaseChangeLog:
             tableName: recipe_ingredient
             columns:
               - column:
-                  name: id
-                  type: uuid
-                  constraints:
-                    primaryKey: true
-              - column:
                   name: recipe_id
                   type: uuid
                   constraints:
@@ -39,13 +34,6 @@ databaseChangeLog:
                   type: float
                   constraints:
                     nullable: false
-#             TODO separate table with units
-              - column:
-                  name: measurement_unit
-                  type: varchar(100)
-                  constraints:
-                    nullable: false
-
               - column:
                   name: created_at
                   type: datetime

@@ -1,4 +1,4 @@
-package io.immortal.spicemustflow.domain.ingredient
+package io.immortal.spicemustflow.tests
 
 import io.immortal.spicemustflow.clients.ingredient.INGREDIENT_PARAM_NAME
 import io.immortal.spicemustflow.clients.ingredient.IngredientDataCreator
@@ -11,18 +11,21 @@ import io.immortal.spicemustflow.common.constants.DEFAULT_STRING_SIZE
 import io.immortal.spicemustflow.common.restassured.RestAssuredTest
 import io.immortal.spicemustflow.common.utils.TestRandom.Companion.randomString
 import io.immortal.spicemustflow.common.validation.WebValidator
+import io.immortal.spicemustflow.domain.ingredient.IngredientId
+import io.immortal.spicemustflow.testcontainers.WithDatabase
 import io.immortal.spicemustflow.web.resources.ingredient.INGREDIENT_PATH
 import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientDto
 import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestSaveCommand
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import kotlin.test.assertNotNull
 
 //Comment @SpringBootTest and @WithDatabase to run tests over your local server
-//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-//@WithDatabase
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@WithDatabase
 class IngredientRestTests : RestAssuredTest() {
     private val client: IngredientTestClient = IngredientTestClient()
     private val dataCreator: IngredientDataCreator = IngredientDataCreator()
@@ -41,7 +44,6 @@ class IngredientRestTests : RestAssuredTest() {
         val createdId: IngredientId = createdResult.body
 
         val found: TestResponseWithBody<IngredientDto> = client.findById(createdId)
-
         assertThat(found.body.id).isEqualTo(createdId)
         ingredientValidator.validate(found.body, ingredientSaveCommand)
         found.response.printAsPrettyString()

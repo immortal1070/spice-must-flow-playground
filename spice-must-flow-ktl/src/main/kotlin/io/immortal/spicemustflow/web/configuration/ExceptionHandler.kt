@@ -45,10 +45,10 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
         responseCode = "400",
         description = "Bad Request",
         content = [Content(
-                mediaType = "application/problem+json",
-                schema = Schema(implementation = ProblemDetail::class),
-                examples = [ExampleObject(
-                        value = """{
+            mediaType = "application/problem+json",
+            schema = Schema(implementation = ProblemDetail::class),
+            examples = [ExampleObject(
+                value = """{
                       "type": "errortype",
                       "title": "Validation exception",
                       "status": 400,
@@ -60,7 +60,7 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
                         "invalidValue": "123"
                       }
                     }"""
-                )]
+            )]
         )]
     )
 
@@ -69,32 +69,32 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
     }
 
     override fun handleMethodArgumentNotValid(
-            e: MethodArgumentNotValidException,
-            headers: HttpHeaders,
-            status: HttpStatusCode,
-            request: WebRequest
+        e: MethodArgumentNotValidException,
+        headers: HttpHeaders,
+        status: HttpStatusCode,
+        request: WebRequest
     ): ResponseEntity<Any>? {
         return buildErrorResponseEntity(e, buildValidationErrors(e)) { body -> body }
     }
 
     private fun <T> buildErrorResponseEntity(
-            e: Throwable,
-            validationErrors: List<ViolationError>,
+        e: Throwable,
+        validationErrors: List<ViolationError>,
         //problemTypeConverter is used to convert a type of body to the needed subtype
-            problemTypeConverter: (ProblemDetail) -> T
+        problemTypeConverter: (ProblemDetail) -> T
     ): ResponseEntity<T> {
         val errorResponse: ErrorResponse = buildErrorResponse(e, validationErrors)
         return ResponseEntity<T>(
-                problemTypeConverter(errorResponse.body),
-                errorResponse.headers,
-                errorResponse.statusCode
+            problemTypeConverter(errorResponse.body),
+            errorResponse.headers,
+            errorResponse.statusCode
         )
     }
 
     private fun buildErrorResponse(e: Throwable, errors: List<ViolationError>): ErrorResponse = ErrorResponse.builder(
-            e,
-            HttpStatus.BAD_REQUEST,
-            ERROR_DETAIL
+        e,
+        HttpStatus.BAD_REQUEST,
+        ERROR_DETAIL
     ).property("errors", errors)
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         .build()
@@ -102,16 +102,16 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
     private fun buildValidationErrors(e: MethodArgumentNotValidException): List<ViolationError> {
         val fieldErrors: List<ViolationError> = e.bindingResult.fieldErrors.map {
             ViolationError(
-                    message = it.defaultMessage,
-                    path = it.field,
-                    invalidValue = it.rejectedValue
+                message = it.defaultMessage,
+                path = it.field,
+                invalidValue = it.rejectedValue
             )
         }
 
         val globalErrors: List<ViolationError> = e.bindingResult.globalErrors.map {
             ViolationError(
-                    message = it.defaultMessage,
-                    path = it.objectName
+                message = it.defaultMessage,
+                path = it.objectName
             )
         }
         return fieldErrors + globalErrors
@@ -122,9 +122,9 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
     ): List<ViolationError> {
         return e.constraintViolations.map { violation ->
             ViolationError(
-                    message = violation.message,
-                    path = violation.propertyPath.toString(),
-                    invalidValue = violation.invalidValue
+                message = violation.message,
+                path = violation.propertyPath.toString(),
+                invalidValue = violation.invalidValue
             )
         }.toList()
     }

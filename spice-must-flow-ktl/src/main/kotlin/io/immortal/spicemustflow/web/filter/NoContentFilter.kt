@@ -20,7 +20,7 @@ class NoContentFilter : OncePerRequestFilter() {
         reponse: HttpServletResponse, filterChain: FilterChain
     ) {
         filterChain.doFilter(request, reponse)
-        if (reponse.contentType.isEmpty()) {
+        if (reponse.contentType.isNullOrEmpty()) {
             reponse.status = HttpStatus.NO_CONTENT.value()
         }
     }

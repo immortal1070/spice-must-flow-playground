@@ -13,10 +13,12 @@ import org.springframework.transaction.event.TransactionalEventListener
 @MethodLogging
 class IngredientCacheService {
     @CacheEvict(value = [INGREDIENT_BY_ID_CACHE])
-    fun evictCacheById(id: IngredientId) {}
+    fun evictCacheById(id: IngredientId) {
+    }
 
     @CacheEvict(value = [INGREDIENT_SEARCH_CACHE], allEntries = true)
-    fun evictSearchCache() {}
+    fun evictSearchCache() {
+    }
 }
 
 // in separate class because of CacheEvict

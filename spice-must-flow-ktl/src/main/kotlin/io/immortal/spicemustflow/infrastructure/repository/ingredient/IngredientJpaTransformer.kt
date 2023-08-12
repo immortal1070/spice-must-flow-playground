@@ -11,15 +11,9 @@ class IngredientJpaTransformer {
         entity.id = ingredient.id.uuid
         entity
     }
-
-//    fun toJpaEntity(id: IngredientId, saveCommand: IngredientRepoSaveCommand): IngredientJpaEntity {
-//        val entity = IngredientJpaEntity(saveCommand.name)
-//        entity.id = id.uuid
-//        return entity
-//    }
 }
 
-fun IngredientJpaEntity.toDomainObject(): Ingredient  {
+fun IngredientJpaEntity.toDomainObject(): Ingredient {
     val entityId = id
     if (entityId == null) {
         throw IllegalStateException("Provide entity id before converting to aggregate!")
