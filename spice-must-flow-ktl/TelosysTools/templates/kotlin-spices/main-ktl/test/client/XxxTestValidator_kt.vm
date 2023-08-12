@@ -1,0 +1,19 @@
+package io.immortal.spicemustflow.clients.${fn.toLowerCase($entity.name)}
+
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}Dto
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}RestSaveCommand
+import org.assertj.core.api.Assertions.assertThat
+
+class ${entity.name}TestValidator {
+    fun validate(actual: ${entity.name}Dto, saveDto: ${entity.name}RestSaveCommand) {
+        assertThat(actual).isNotNull
+#foreach( $attribute in $entity.nonKeyAttributes )
+assertThat(actual.$attribute.name).isEqualTo(saveDto.$attribute.name)
+#end
+        assertThat(actual.id).isNotNull
+    }
+
+    fun validate(actual: ${entity.name}Dto, expected: ${entity.name}Dto) {
+        assertThat(actual).isEqualTo(expected)
+    }
+}

@@ -1,0 +1,38 @@
+package io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}
+
+import io.immortal.spicemustflow.application.${fn.toLowerCase($entity.name)}.${entity.name}SaveCommand
+import io.immortal.spicemustflow.common.stereotype.ApplicationScoped
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Query
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}Dto
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}RestQuery
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}RestSaveCommand
+
+@ApplicationScoped
+class ${entity.name}RestTransformer {
+    fun toDto(${fn.toLowerCase($entity.name)}: ${entity.name}): ${entity.name}Dto = ${fn.toLowerCase($entity.name)}.run {
+        ${entity.name}Dto(
+            id = id,
+#foreach( $attribute in $entity.nonKeyAttributes )
+${attribute.name} = ${attribute.name},
+#end
+        )
+    }
+
+    fun toSaveCommand(saveCommand: ${entity.name}RestSaveCommand): ${entity.name}SaveCommand = saveCommand.run {
+        ${entity.name}SaveCommand(
+#foreach( $attribute in $entity.nonKeyAttributes )
+    ${attribute.name} = ${attribute.name},
+#end
+        )
+    }
+
+    fun toQuery(query: ${entity.name}RestQuery): ${entity.name}Query = query.run {
+        ${entity.name}Query(
+#foreach( $attribute in $entity.nonKeyAttributes )
+    ${attribute.name}s = ${attribute.name}s,
+#end
+            ids = ids,
+        )
+    }
+}

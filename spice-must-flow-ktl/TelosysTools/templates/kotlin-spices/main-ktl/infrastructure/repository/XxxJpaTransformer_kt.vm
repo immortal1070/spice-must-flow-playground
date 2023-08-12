@@ -1,0 +1,32 @@
+package io.immortal.spicemustflow.infrastructure.repository.${fn.toLowerCase($entity.name)}
+
+import io.immortal.spicemustflow.common.stereotype.ApplicationScoped
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Id
+
+@ApplicationScoped
+class ${entity.name}JpaTransformer {
+    fun toJpaEntity(${fn.toLowerCase($entity.name)}: ${entity.name}): ${entity.name}JpaEntity = ${fn.toLowerCase($entity.name)}.run {
+        val entity = ${entity.name}JpaEntity(
+#foreach( $attribute in $entity.nonKeyAttributes )
+    ${fn.toLowerCase($entity.name)}.${attribute.name},
+#end
+
+)
+        entity.id = ${fn.toLowerCase($entity.name)}.id.uuid
+        entity
+    }
+}
+
+fun ${entity.name}JpaEntity.toDomainObject(): ${entity.name}  {
+    val entityId = id
+    if (entityId == null) {
+        throw IllegalStateException("Provide entity id before converting to aggregate!")
+    }
+    return ${entity.name}(
+        id = ${entity.name}Id(entityId),
+    #foreach( $attribute in $entity.nonKeyAttributes )
+    ${attribute.name} = ${attribute.name},
+    #end
+    )
+}

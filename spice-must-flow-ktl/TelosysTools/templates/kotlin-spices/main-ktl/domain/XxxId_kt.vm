@@ -1,0 +1,13 @@
+package io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}
+
+import java.util.*
+
+data class ${entity.name}Id(
+    val uuid: UUID
+) {
+    constructor(uuidString: String) : this(UUID.fromString(uuidString))
+
+    override fun toString(): String {
+        return uuid.toString()
+    }
+}

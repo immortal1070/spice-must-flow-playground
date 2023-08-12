@@ -1,0 +1,7 @@
+Recipe {
+   id   : byte { @Id } ;
+   name : string { @Unique @NotEmpty @Max(250) } ;
+   content: string { @NotEmpty } ;
+   cookingMinutes: int { @NotNull }  ; //time in minutes
+   ingredients: Ingredient[] ;
+}

@@ -1,0 +1,12 @@
+package io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto
+
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Id
+import io.swagger.v3.oas.annotations.media.Schema
+
+data class ${entity.name}Dto(
+    val id: ${entity.name}Id,
+#foreach( $attribute in $entity.nonKeyAttributes )
+@Schema(example = "potato")
+val ${attribute.name}: ${attribute.type},
+#end
+)

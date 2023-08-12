@@ -1,0 +1,78 @@
+package io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}
+
+import io.immortal.spicemustflow.application.${fn.toLowerCase($entity.name)}.${entity.name}Service
+import io.immortal.spicemustflow.common.constants.UUID_PATH
+import io.immortal.spicemustflow.common.stereotype.WebRestController
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Id
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}Dto
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}RestQuery
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}RestSaveCommand
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.*
+import java.util.*
+
+const val $fn.toUpperCase($entity.name)_PATH = "/v1/${fn.toLowerCase($entity.name)}s"
+
+@RequestMapping($fn.toUpperCase($entity.name)_PATH)
+@WebRestController
+@Tag(name = $fn.toUpperCase($entity.name)S_TAG)
+class ${entity.name}Controller(
+    private val ${fn.toLowerCase($entity.name)}Service: ${entity.name}Service,
+    private val transformer: ${entity.name}RestTransformer
+) {
+    @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
+    @Operation(
+        operationId = "find${entity.name}s",
+        summary = "search ${fn.toLowerCase($entity.name)}s by parameters. Parameters are joined with AND. Is some are not present - parameters are ignored",
+        description = "search by parameters"
+    )
+    fun find(params: ${entity.name}RestQuery): List<${entity.name}Dto> {
+        return ${fn.toLowerCase($entity.name)}Service.find(transformer.toQuery(params)).map { transformer.toDto(it) }
+    }
+
+    @GetMapping(UUID_PATH, consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @Operation(
+        operationId = "get${entity.name}ById"
+    )
+    fun get(@PathVariable id: ${entity.name}Id): ${entity.name}Dto? {
+        return ${fn.toLowerCase($entity.name)}Service.findById(id)?.let { transformer.toDto(it) }
+    }
+
+    @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @Operation(
+        operationId = "create${entity.name}"
+    )
+    @ResponseStatus(HttpStatus.CREATED)
+    fun create(@RequestBody saveCommand: ${entity.name}RestSaveCommand): ${entity.name}Id {
+        return ${fn.toLowerCase($entity.name)}Service.create(transformer.toSaveCommand(saveCommand))
+    }
+
+    @PutMapping(UUID_PATH, consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @Operation(
+        operationId = "update${entity.name}"
+    )
+    fun update(@PathVariable id: ${entity.name}Id, @RequestBody saveCommand: ${entity.name}RestSaveCommand) {
+        ${fn.toLowerCase($entity.name)}Service.update(id, transformer.toSaveCommand(saveCommand))
+    }
+
+    @DeleteMapping(UUID_PATH)
+    @Operation(
+        operationId = "delete${entity.name}ById"
+    )
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun delete(@PathVariable id: ${entity.name}Id) {
+        ${fn.toLowerCase($entity.name)}Service.delete(listOf(id))
+    }
+
+    @DeleteMapping
+    @Operation(
+        operationId = "delete${entity.name}s"
+    )
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun delete(@RequestParam(name = "id") ids: List<${entity.name}Id>) {
+        ${fn.toLowerCase($entity.name)}Service.delete(ids)
+    }
+}

@@ -1,0 +1,68 @@
+package io.immortal.spicemustflow.infrastructure.repository.${fn.toLowerCase($entity.name)}
+
+import io.immortal.spicemustflow.common.exception.ObjectNotFoundException
+import io.immortal.spicemustflow.common.stereotype.InfrastructureRepository
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Id
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Query
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Repository
+import io.immortal.spicemustflow.infrastructure.common.persistence.generators.IdGenerator
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.repository.CrudRepository
+import org.springframework.data.repository.findByIdOrNull
+import java.util.*
+
+@InfrastructureRepository
+class Jpa${entity.name}Repository(
+    private val baseRepository: ${entity.name}BaseRepository,
+    private val transformer: ${entity.name}JpaTransformer,
+    private val idGenerator: IdGenerator
+) : ${entity.name}Repository {
+    override fun findById(id: ${entity.name}Id): ${entity.name}? =
+        baseRepository.findByIdOrNull(id.uuid)?.let {
+            it.toDomainObject()
+        }
+
+    override fun find(query: ${entity.name}Query): List<${entity.name}> {
+        return baseRepository.findAll(find${entity.name}sSpec(query)).map {
+            it.toDomainObject()
+        }
+    }
+
+    override fun save(${fn.toLowerCase($entity.name)}: ${entity.name}): ${entity.name} {
+        return baseRepository.save(transformer.toJpaEntity(${fn.toLowerCase($entity.name)})).toDomainObject()
+    }
+
+    override fun delete(id: ${entity.name}Id) {
+        val existing: ${entity.name}JpaEntity = getOrThrow(id)
+        baseRepository.delete(existing)
+    }
+
+    override fun delete(ids: List<${entity.name}Id>) {
+        /* TODO check why delete by spec is not working -
+                java.lang.NullPointerException: Parameter specified as non-null is null: method io.immortal.spicemustflow.infrastructure.${fn.toLowerCase($entity.name)}.${entity.name}JpaRepositoryKt.findByIdsSpec#[[$lambda$4#]], parameter query
+                at io.immortal.spicemustflow.infrastructure.${fn.toLowerCase($entity.name)}.${entity.name}JpaRepositoryKt.findByIdsSpec#[[$lambda$4]]#(${entity.name}JpaRepository.kt)
+                at org.springframework.data.jpa.repository.support.SimpleJpaRepository.delete(SimpleJpaRepository.java:527)
+        */
+//        baseRepository.delete(findByIdsSpec(ids))
+        baseRepository.deleteAll(baseRepository.findAll(findByIdsSpec(ids)))
+    }
+
+    override fun generateId(): ${entity.name}Id {
+        return ${entity.name}Id(idGenerator.generateUuid())
+    }
+
+    private fun getOrThrow(id: ${entity.name}Id): ${entity.name}JpaEntity {
+        return baseRepository.findById(id.uuid).orElseThrow {
+            ObjectNotFoundException(
+                name = "${entity.name}",
+                id = id
+            )
+        }
+    }
+}
+
+interface ${entity.name}BaseRepository : CrudRepository<${entity.name}JpaEntity, UUID>,
+    JpaSpecificationExecutor<${entity.name}JpaEntity> {
+    fun findByName(name: String?): ${entity.name}JpaEntity?
+}

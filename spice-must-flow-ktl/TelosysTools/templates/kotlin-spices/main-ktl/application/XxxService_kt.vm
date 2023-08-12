@@ -1,0 +1,63 @@
+package io.immortal.spicemustflow.application.${fn.toLowerCase($entity.name)}
+
+import io.immortal.spicemustflow.application.${fn.toLowerCase($entity.name)}.cache.$fn.toUpperCase($entity.name)_BY_ID_CACHE
+import io.immortal.spicemustflow.application.${fn.toLowerCase($entity.name)}.cache.$fn.toUpperCase($entity.name)_SEARCH_CACHE
+import io.immortal.spicemustflow.common.stereotype.ApplicationService
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.*
+import jakarta.validation.Valid
+import org.springframework.cache.annotation.CacheConfig
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.context.ApplicationEventPublisher
+import java.util.*
+
+@ApplicationService
+@CacheConfig(cacheNames = [$fn.toUpperCase($entity.name)_SEARCH_CACHE, $fn.toUpperCase($entity.name)_BY_ID_CACHE])
+class ${entity.name}Service(
+    private val ${fn.toLowerCase($entity.name)}Repository: ${entity.name}Repository,
+    private val publisher: ApplicationEventPublisher
+) {
+    @Cacheable($fn.toUpperCase($entity.name)_BY_ID_CACHE)
+    fun findById(id: ${entity.name}Id): ${entity.name}? = ${fn.toLowerCase($entity.name)}Repository.findById(id)
+
+    @Cacheable($fn.toUpperCase($entity.name)_SEARCH_CACHE)
+    fun find(findParams: ${entity.name}Query): List<${entity.name}> = ${fn.toLowerCase($entity.name)}Repository.find(findParams)
+
+    fun create(@Valid saveCommand: ${entity.name}SaveCommand): ${entity.name}Id {
+        val ${fn.toLowerCase($entity.name)}: ${entity.name} = to${entity.name}(
+            ${fn.toLowerCase($entity.name)}Repository.generateId(), saveCommand
+        )
+        val saved: ${entity.name} = ${fn.toLowerCase($entity.name)}Repository.save(${fn.toLowerCase($entity.name)}).also {
+            publisher.publishEvent(${entity.name}Created(${entity.name}EventDto(it)))
+        }
+        return saved.id
+    }
+//   TODO add @${entity.name}Id validation
+    fun update( id: ${entity.name}Id, @Valid saveCommand: ${entity.name}SaveCommand) {
+        val ${fn.toLowerCase($entity.name)}: ${entity.name} = to${entity.name}(id, saveCommand)
+        ${fn.toLowerCase($entity.name)}Repository.save(${fn.toLowerCase($entity.name)}).also {
+            publisher.publishEvent(${entity.name}Updated(${entity.name}EventDto(it)))
+        }
+    }
+
+    fun delete(ids: List<${entity.name}Id>) {
+        ${fn.toLowerCase($entity.name)}Repository.find(${entity.name}Query(ids = ids))
+            .forEach {
+                publisher.publishEvent(${entity.name}Deleted(${entity.name}EventDto(it)))
+            }
+        ${fn.toLowerCase($entity.name)}Repository.delete(ids)
+    }
+
+    private fun to${entity.name}(id: ${entity.name}Id, saveCommand: ${entity.name}SaveCommand): ${entity.name} = saveCommand.run {
+        ${entity.name}(
+            id = id,
+#foreach( $attribute in $entity.nonKeyAttributes )
+    $attribute.name = $attribute.name,
+#end
+#if ( $entity.hasLinks() )
+    #foreach( $link in $entity.links )
+    $link.fieldName = $link.fieldName,
+    #end
+#end
+        )
+    }
+}

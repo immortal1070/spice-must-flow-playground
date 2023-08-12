@@ -1,0 +1,45 @@
+package io.immortal.spicemustflow.clients.${fn.toLowerCase($entity.name)}
+
+import io.immortal.spicemustflow.common.CreatedData
+import io.immortal.spicemustflow.common.utils.TestRandom
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Id
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}RestSaveCommand
+import kotlin.random.Random
+
+class ${entity.name}DataCreator {
+    private val ${fn.toLowerCase($entity.name)}Client: ${entity.name}TestClient = ${entity.name}TestClient()
+    private val createdIds: MutableList<${entity.name}Id> = mutableListOf()
+
+    fun createRandom${entity.name}s(): List<CreatedData<${entity.name}RestSaveCommand, ${entity.name}Id>> {
+        return create${entity.name}s(randomSaveDtos())
+    }
+
+    fun create${entity.name}s(saveDtos: List<${entity.name}RestSaveCommand>): List<CreatedData<${entity.name}RestSaveCommand, ${entity.name}Id>> {
+        return saveDtos.map {
+            CreatedData(
+                inputDto = it,
+                createdResponse = ${fn.toLowerCase($entity.name)}Client.validCreate(it)
+            )
+        }.toList()
+            .also {
+                createdIds.addAll(it.map { createdData -> createdData.createdResponse.body })
+            }
+    }
+
+    fun saveDto(): ${entity.name}RestSaveCommand = ${entity.name}RestSaveCommand(
+        #foreach( $attribute in $entity.nonKeyAttributes )
+            TestRandom.randomString(),
+        #end
+        )
+
+    fun randomSaveDtos(): List<${entity.name}RestSaveCommand> = (1..Random.nextInt(3, 10)).map {
+        saveDto()
+    }
+
+    fun cleanup() {
+        //TODO check parallel test run behaviour
+        val idsToDelete = createdIds.toList()
+        ${fn.toLowerCase($entity.name)}Client.deleteRequest(idsToDelete)
+        createdIds.removeAll(idsToDelete)
+    }
+}

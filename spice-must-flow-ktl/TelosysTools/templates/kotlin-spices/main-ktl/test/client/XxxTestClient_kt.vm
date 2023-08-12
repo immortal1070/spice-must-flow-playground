@@ -1,0 +1,122 @@
+package io.immortal.spicemustflow.clients.${fn.toLowerCase($entity.name)}
+
+import io.immortal.spicemustflow.common.TestResponse
+import io.immortal.spicemustflow.common.TestResponseWithBody
+import io.immortal.spicemustflow.common.restassured.As
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Id
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}Dto
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}RestSaveCommand
+import io.restassured.module.kotlin.extensions.*
+import io.restassured.response.ValidatableResponse
+import org.assertj.core.api.Assertions.assertThat
+import org.hamcrest.Matchers.*
+import org.springframework.http.HttpStatus
+import java.util.*
+
+const val $fn.toUpperCase($entity.name)_PARAM_ID = "ids"
+const val $fn.toUpperCase($entity.name)_PARAM_NAME = "names"
+
+private const val RESOURCE_ROOT = "/v1/${fn.toLowerCase($entity.name)}s"
+private const val CONTENT_TYPE = "application/json; charset=UTF-16"
+private val REQUEST_MAX_TIME = lessThan(5000L)
+
+class ${entity.name}TestClient {
+    
+    fun findById(id: ${entity.name}Id): TestResponseWithBody<${entity.name}Dto> {
+        val foundResult = find($fn.toUpperCase($entity.name)_PARAM_ID to id.uuid)
+        assertThat(foundResult.body.size).isEqualTo(1)
+        return TestResponseWithBody(foundResult.response, foundResult.body[0])
+    }
+
+    fun find(queryParams: Pair<String, Any?>): TestResponseWithBody<List<${entity.name}Dto>> {
+        return find(mapOf(queryParams))
+    }
+
+    fun find(queryParams: Map<String, Any?>): TestResponseWithBody<List<${entity.name}Dto>> {
+        val response: ValidatableResponse =
+            Given {
+                queryParams(queryParams)
+            } When {
+                get(RESOURCE_ROOT)
+            } Then {
+                time(REQUEST_MAX_TIME)
+                statusCode(HttpStatus.OK.value())
+            }
+
+        val dto: List<${entity.name}Dto> = response Extract {
+            As(Array<${entity.name}Dto>::class.java).asList()
+        }
+        return TestResponseWithBody(TestResponse(response), dto)
+    }
+
+    fun findNone(id: ${entity.name}Id) {
+        findNone(mapOf($fn.toUpperCase($entity.name)_PARAM_ID to id.uuid))
+    }
+
+    fun findNone(queryParams: Map<String, Any?>) {
+        Given {
+            queryParams(queryParams)
+        } When {
+            get(RESOURCE_ROOT)
+        } Then {
+            time(REQUEST_MAX_TIME)
+            statusCode(HttpStatus.OK.value())
+            body("", hasSize<String>(0))
+        }
+    }
+
+    fun createRequest(saveDto: ${entity.name}RestSaveCommand): TestResponse {
+        return TestResponse(Given {
+            contentType(CONTENT_TYPE)
+            body(saveDto)
+        } When {
+            post(RESOURCE_ROOT)
+        } Then {
+            time(REQUEST_MAX_TIME)
+        })
+    }
+
+    fun validCreate(saveDto: ${entity.name}RestSaveCommand): TestResponseWithBody<${entity.name}Id> {
+        val response: TestResponse = createRequest(saveDto)
+            .statusCode(HttpStatus.CREATED.value())
+
+        val dto = response.extract(${entity.name}Id::class.java)
+
+        return TestResponseWithBody(response, dto)
+    }
+
+    fun updateRequest(id: ${entity.name}Id, saveDto: ${entity.name}RestSaveCommand): TestResponse {
+        return TestResponse(Given {
+            contentType(CONTENT_TYPE)
+            body(saveDto)
+        } When {
+                #[[ put("$RESOURCE_ROOT/$id")]]#
+        } Then {
+            time(REQUEST_MAX_TIME)
+        })
+    }
+
+    fun validUpdate(id: ${entity.name}Id, saveDto: ${entity.name}RestSaveCommand): TestResponse {
+        return updateRequest(id, saveDto).statusCode(HttpStatus.OK.value())
+    }
+
+    fun deleteRequest(id: ${entity.name}Id): TestResponse {
+        return TestResponse(When {
+                #[[ delete("$RESOURCE_ROOT/$id")]]#
+        } Then {
+            time(REQUEST_MAX_TIME)
+        })
+    }
+
+    fun deleteRequest(ids: List<${entity.name}Id>): TestResponse {
+        return TestResponse(Given {
+            queryParams(mapOf($fn.toUpperCase($entity.name)_PARAM_ID to ids))
+        } When {
+            delete(RESOURCE_ROOT)
+        } Then {
+            time(REQUEST_MAX_TIME)
+        })
+    }
+
+    fun generateId(): ${entity.name}Id = ${entity.name}Id(UUID.randomUUID())
+}
