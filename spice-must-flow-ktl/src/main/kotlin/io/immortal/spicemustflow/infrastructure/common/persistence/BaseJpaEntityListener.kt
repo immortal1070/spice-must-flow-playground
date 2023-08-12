@@ -9,11 +9,11 @@ import jakarta.persistence.PreUpdate
 class BaseJpaEntityListener {
     @PrePersist
     fun onPrePersist(model: BaseJpaEntity) {
-        model.createdAt = nowOffsetUtc()
+        model.createInfo = JpaCreateInfo(createdAt = nowOffsetUtc())
     }
 
     @PreUpdate
     fun onPreUpdate(model: BaseJpaEntity) {
-        model.updatedAt = nowOffsetUtc()
+        model.updateInfo = JpaUpdateInfo(updatedAt = nowOffsetUtc())
     }
 }

@@ -1,7 +1,7 @@
 package io.immortal.spicemustflow.clients.ingredient
 
 import io.immortal.spicemustflow.common.CreatedData
-import io.immortal.spicemustflow.common.utils.TestRandom
+import io.immortal.spicemustflow.common.utils.TestRandom.Companion.randomString
 import io.immortal.spicemustflow.domain.ingredient.IngredientId
 import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestSaveCommand
 import kotlin.random.Random
@@ -11,7 +11,7 @@ class IngredientDataCreator {
     private val createdIds: MutableList<IngredientId> = mutableListOf()
 
     fun createRandomIngredients(): List<CreatedData<IngredientRestSaveCommand, IngredientId>> {
-        return createIngredients(randomSaveDtos())
+        return createIngredients(newRandomSaveCommands())
     }
 
     fun createIngredients(saveDtos: List<IngredientRestSaveCommand>): List<CreatedData<IngredientRestSaveCommand, IngredientId>> {
@@ -26,10 +26,10 @@ class IngredientDataCreator {
             }
     }
 
-    fun saveDto(): IngredientRestSaveCommand = IngredientRestSaveCommand(TestRandom.randomString())
+    fun newSaveCommand(): IngredientRestSaveCommand = IngredientRestSaveCommand(randomString())
 
-    fun randomSaveDtos(): List<IngredientRestSaveCommand> = (1..Random.nextInt(3, 10)).map {
-        saveDto()
+    fun newRandomSaveCommands(): List<IngredientRestSaveCommand> = (1..Random.nextInt(3, 10)).map {
+        newSaveCommand()
     }
 
     fun cleanup() {

@@ -5,5 +5,5 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
 class IngredientSaveCommand(
-    @field:NotBlank @field:Size(max = DEFAULT_STRING_SIZE) val name: String
+    @field:NotBlank @field:Size(max = DEFAULT_STRING_SIZE) val name: String = ""//TODO check if default is a must
 )

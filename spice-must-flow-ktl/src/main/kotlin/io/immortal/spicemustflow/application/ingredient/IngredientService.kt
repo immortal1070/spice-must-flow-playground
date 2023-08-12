@@ -8,12 +8,12 @@ import jakarta.validation.Valid
 import org.springframework.cache.annotation.CacheConfig
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.ApplicationEventPublisher
-import java.util.*
 
 @ApplicationService
 @CacheConfig(cacheNames = [INGREDIENT_SEARCH_CACHE, INGREDIENT_BY_ID_CACHE])
 class IngredientService(
     private val ingredientRepository: IngredientRepository,
+//    private val ingredientTransformer: IngredientTransformer,
     private val publisher: ApplicationEventPublisher
 ) {
     @Cacheable(INGREDIENT_BY_ID_CACHE)
@@ -22,33 +22,20 @@ class IngredientService(
     @Cacheable(INGREDIENT_SEARCH_CACHE)
     fun find(findParams: IngredientQuery): List<Ingredient> = ingredientRepository.find(findParams)
 
-//    fun create(@Valid saveCommand: IngredientSaveCommand): IngredientId {
-//        val created: Ingredient = ingredientRepository.create(toRepoCommand(saveCommand)).also {
-//            publisher.publishEvent(IngredientCreated(IngredientEventDto(it)))
-//        }
-//        return created.id
-//    }
-//
-//    //   TODO add @IngredientId validation
-//    fun update( id: IngredientId, @Valid saveCommand: IngredientSaveCommand) {
-//        ingredientRepository.update(id, toRepoCommand(saveCommand)).also {
-//            publisher.publishEvent(IngredientUpdated(IngredientEventDto(it)))
-//        }
-//    }
-
     fun create(@Valid saveCommand: IngredientSaveCommand): IngredientId {
         val ingredient: Ingredient = toIngredient(
             ingredientRepository.generateId(), saveCommand
         )
-        val saved: Ingredient = ingredientRepository.save(ingredient).also {
+        val saved: Ingredient = ingredientRepository.create(ingredient).also {
             publisher.publishEvent(IngredientCreated(IngredientEventDto(it)))
         }
         return saved.id
     }
-//   TODO add @IngredientId validation
-    fun update( id: IngredientId, @Valid saveCommand: IngredientSaveCommand) {
+
+    //   TODO add @IngredientId validation
+    fun update(id: IngredientId, @Valid saveCommand: IngredientSaveCommand) {
         val ingredient: Ingredient = toIngredient(id, saveCommand)
-        ingredientRepository.save(ingredient).also {
+        ingredientRepository.update(ingredient).also {
             publisher.publishEvent(IngredientUpdated(IngredientEventDto(it)))
         }
     }
@@ -67,10 +54,4 @@ class IngredientService(
             name = name
         )
     }
-
-//    private fun toRepoCommand(saveCommand: IngredientSaveCommand): IngredientRepoSaveCommand = saveCommand.run {
-//        IngredientRepoSaveCommand(
-//            name = name
-//        )
-//    }
 }

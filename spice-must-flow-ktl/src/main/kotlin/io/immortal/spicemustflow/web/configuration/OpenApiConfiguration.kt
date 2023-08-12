@@ -1,6 +1,7 @@
 package io.immortal.spicemustflow.web.configuration
 
 import io.immortal.spicemustflow.web.resources.ingredient.INGREDIENTS_TAG
+import io.immortal.spicemustflow.web.resources.recipe.RECIPES_TAG
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.info.Info
 import io.swagger.v3.oas.annotations.servers.Server
@@ -39,12 +40,16 @@ import org.springframework.context.annotation.Configuration
 //)
 @OpenAPIDefinition(
     info = Info(
-            title = "Spice Must Flow API",
-            version = "0.1.0",
-            description = "Spice Must Flow is a project for storing and managing recipes from different ingredients"
+        title = "Spice Must Flow API",
+        version = "0.1.0",
+        description = "Spice Must Flow is a project for storing and managing recipes from different ingredients"
     ),
     tags = [
-        Tag(name = INGREDIENTS_TAG, description = "Ingredients are used in recipes")
+        Tag(
+            name = RECIPES_TAG,
+            description = "Recipes which hold a recipe instructions and a list of ingredients and the needed amount of ingredients"
+        ),
+        Tag(name = INGREDIENTS_TAG, description = "Ingredients are used in recipes"),
     ],
     servers = [Server(url = "http://localhost:8080")]
 //    security = [SecurityRequirement(name = BEARER_SECURITY_SCHEME), SecurityRequirement(name = TENANT_SECURITY_SCHEME), SecurityRequirement(

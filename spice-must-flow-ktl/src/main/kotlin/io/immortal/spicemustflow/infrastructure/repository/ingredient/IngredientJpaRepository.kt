@@ -20,7 +20,6 @@ class JpaIngredientRepository(
 ) : IngredientRepository {
     override fun findById(id: IngredientId): Ingredient? =
         baseRepository.findByIdOrNull(id.uuid)?.let {
-            println("createdAt=${it.createdAt}")
             it.toDomainObject()
         }
 
@@ -30,24 +29,13 @@ class JpaIngredientRepository(
         }
     }
 
-//    override fun create(saveCommand: IngredientRepoSaveCommand): Ingredient {
-//        return save(generateId(), saveCommand)
-//    }
-//
-//    override fun update(id: IngredientId, saveCommand: IngredientRepoSaveCommand): Ingredient {
-//        return save(id, saveCommand)
-//    }
-
-    override fun save(ingredient: Ingredient): Ingredient {
-        //TODO remove after the date test is done
-        TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"))
-
-        return baseRepository.save(transformer.toJpaEntity(ingredient)).toDomainObject()
+    override fun create(ingredient: Ingredient): Ingredient {
+        return save(ingredient)
     }
-//
-//    fun save(id: IngredientId, saveCommand: IngredientRepoSaveCommand): Ingredient {
-//        return baseRepository.save(transformer.toJpaEntity(id, saveCommand)).toDomainObject()
-//    }
+
+    override fun update(ingredient: Ingredient): Ingredient {
+        return save(ingredient)
+    }
 
     override fun delete(id: IngredientId) {
         val existing: IngredientJpaEntity = getOrThrow(id)
@@ -68,6 +56,10 @@ class JpaIngredientRepository(
         return IngredientId(idGenerator.generateUuid())
     }
 
+    private fun save(ingredient: Ingredient): Ingredient {
+        return baseRepository.save(transformer.toJpaEntity(ingredient)).toDomainObject()
+    }
+
     private fun getOrThrow(id: IngredientId): IngredientJpaEntity {
         return baseRepository.findById(id.uuid).orElseThrow {
             ObjectNotFoundException(
@@ -80,18 +72,4 @@ class JpaIngredientRepository(
 
 interface IngredientBaseRepository : CrudRepository<IngredientJpaEntity, UUID>,
     JpaSpecificationExecutor<IngredientJpaEntity> {
-    fun findByName(name: String?): IngredientJpaEntity?
-}
-
-//private fun toIngredient(id: IngredientId, saveCommand: IngredientRepoSaveCommand): Ingredient = saveCommand.run {
-//    Ingredient(
-//        id = id,
-//        name = name
-//    )
-//}
-//
-private fun Ingredient.toJpaEntity(): IngredientJpaEntity {
-    val entity = IngredientJpaEntity(name)
-    entity.id = id.uuid
-    return entity
 }

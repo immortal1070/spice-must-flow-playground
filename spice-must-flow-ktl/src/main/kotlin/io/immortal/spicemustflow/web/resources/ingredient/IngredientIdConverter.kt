@@ -11,12 +11,11 @@ import io.immortal.spicemustflow.common.stereotype.ApplicationScoped
 import io.immortal.spicemustflow.domain.ingredient.IngredientId
 import org.springframework.context.annotation.Bean
 import org.springframework.core.convert.converter.Converter
-import java.util.*
 
 @ApplicationScoped
 class IngredientIdConverter : Converter<String?, IngredientId?> {
     override fun convert(source: String): IngredientId? {
-        return IngredientId(UUID.fromString(source))
+        return IngredientId(source)
     }
 }
 
@@ -44,8 +43,6 @@ internal class IngredientIdJsonSerializer : JsonSerializer<IngredientId?>() {
 
 internal class IngredientIdJsonDeserializer : JsonDeserializer<IngredientId?>() {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): IngredientId {
-        return p.getValueAsString().let {
-            IngredientId(UUID.fromString(it))
-        }
+        return IngredientId(p.getValueAsString())
     }
 }

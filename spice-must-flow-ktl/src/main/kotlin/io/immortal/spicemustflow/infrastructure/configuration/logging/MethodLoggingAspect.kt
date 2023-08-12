@@ -8,15 +8,16 @@ import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Pointcut
-import java.util.*
-private val logger = KotlinLogging.logger ("MethodLoggingAspect")
+
+private val logger = KotlinLogging.logger("MethodLoggingAspect")
 
 @Aspect
 @ApplicationScoped
 class MethodLoggingAspect {
 
     @Pointcut("@within(methodLogging) || @annotation(methodLogging)")
-    fun myHandlerFunc(methodLogging: MethodLogging?) {}
+    fun myHandlerFunc(methodLogging: MethodLogging?) {
+    }
 
     @Around("myHandlerFunc(methodLogging)")
     fun loggingAdvice(joinPoint: ProceedingJoinPoint, methodLogging: MethodLogging?): Any? {
@@ -38,8 +39,10 @@ class MethodLoggingAspect {
         }
     }
 
-    private fun getLoggerAnnotation(joinPoint: ProceedingJoinPoint,
-                                    methodLogging: MethodLogging?): MethodLogging? {
+    private fun getLoggerAnnotation(
+        joinPoint: ProceedingJoinPoint,
+        methodLogging: MethodLogging?
+    ): MethodLogging? {
         var loggedAnnotation: MethodLogging? = methodLogging
         if (loggedAnnotation == null) {
             loggedAnnotation = joinPoint.target.javaClass.getAnnotation(MethodLogging::class.java)
