@@ -1,0 +1,8 @@
+package io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}
+
+data class ${entity.name}Query (
+    val ids: List<${entity.name}Id>? = null,
+    #foreach( $attribute in $entity.nonKeyAttributes )
+    val ${attribute.name}s: List<$attribute.type>? = null,
+    #end
+)

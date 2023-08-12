@@ -1,0 +1,47 @@
+package io.immortal.spicemustflow.application.${fn.toLowerCase($entity.name)}.cache
+
+import io.immortal.spicemustflow.common.logging.MethodLogging
+import io.immortal.spicemustflow.common.stereotype.ApplicationScoped
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Created
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Deleted
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Id
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Updated
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.transaction.event.TransactionalEventListener
+
+@ApplicationScoped
+@MethodLogging
+class ${entity.name}CacheService {
+    @CacheEvict(value = [$fn.toUpperCase($entity.name)_BY_ID_CACHE])
+    fun evictCacheById(id: ${entity.name}Id) {}
+
+    @CacheEvict(value = [$fn.toUpperCase($entity.name)_SEARCH_CACHE], allEntries = true)
+    fun evictSearchCache() {}
+}
+
+// in separate class because of CacheEvict
+@ApplicationScoped
+@MethodLogging
+class ${entity.name}CacheListeners(
+    private val ${fn.toLowerCase($entity.name)}CacheService: ${entity.name}CacheService
+) {
+    @TransactionalEventListener
+    internal fun createdEvent(event: ${entity.name}Created) {
+        evictCaches(event.${fn.toLowerCase($entity.name)}.id)
+    }
+
+    @TransactionalEventListener
+    internal fun updatedEvent(event: ${entity.name}Updated) {
+        evictCaches(event.${fn.toLowerCase($entity.name)}.id)
+    }
+
+    @TransactionalEventListener
+    internal fun deletedEvent(event: ${entity.name}Deleted) {
+        evictCaches(event.${fn.toLowerCase($entity.name)}.id)
+    }
+
+    internal fun evictCaches(id: ${entity.name}Id) {
+        ${fn.toLowerCase($entity.name)}CacheService.evictCacheById(id)
+        ${fn.toLowerCase($entity.name)}CacheService.evictSearchCache()
+    }
+}

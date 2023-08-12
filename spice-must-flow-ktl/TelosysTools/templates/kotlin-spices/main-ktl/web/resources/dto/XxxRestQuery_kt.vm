@@ -1,0 +1,16 @@
+package io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto
+
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Id
+import org.springdoc.core.annotations.ParameterObject
+import java.util.*
+
+@ParameterObject
+class ${entity.name}RestQuery (
+    @JsonProperty("id")
+    val ids: List<${entity.name}Id>? = null,
+    #foreach( $attribute in $entity.nonKeyAttributes )
+        @JsonProperty("$attribute.name")
+        val ${attribute.name}s: List<$attribute.type>? = null,
+    #end
+)

@@ -1,0 +1,11 @@
+package io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto
+
+import io.swagger.v3.oas.annotations.media.Schema
+
+@Schema(description = "DTO for ${fn.toLowerCase($entity.name)} which can be used for both create and update operations")
+class ${entity.name}RestSaveCommand(
+#foreach( $attribute in $entity.nonKeyAttributes )
+@Schema(description = "Unique name of the ${fn.toLowerCase($entity.name)}", example = "TODO fill example")
+val ${attribute.name}: ${attribute.type},
+#end
+)

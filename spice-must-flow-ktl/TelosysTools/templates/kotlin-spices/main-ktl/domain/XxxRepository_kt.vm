@@ -1,0 +1,10 @@
+package io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}
+
+interface ${entity.name}Repository {
+    fun save(${fn.toLowerCase($entity.name)}: ${entity.name}): ${entity.name}
+    fun delete(id: ${entity.name}Id)
+    fun delete(ids: List<${entity.name}Id>)
+    fun findById(id: ${entity.name}Id): ${entity.name}?
+    fun find(query: ${entity.name}Query): List<${entity.name}>
+    fun generateId(): ${entity.name}Id
+}

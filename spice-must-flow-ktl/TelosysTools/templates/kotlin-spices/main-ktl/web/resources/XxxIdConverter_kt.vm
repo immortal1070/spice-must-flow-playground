@@ -1,0 +1,51 @@
+package io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}
+
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.databind.JsonSerializer
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.module.SimpleModule
+import io.immortal.spicemustflow.common.stereotype.ApplicationScoped
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Id
+import org.springframework.context.annotation.Bean
+import org.springframework.core.convert.converter.Converter
+import java.util.*
+
+@ApplicationScoped
+class ${entity.name}IdConverter : Converter<String?, ${entity.name}Id?> {
+    override fun convert(source: String): ${entity.name}Id? {
+        return ${entity.name}Id(UUID.fromString(source))
+    }
+}
+
+@ApplicationScoped
+class ${entity.name}IdJacksonModuleProvider {
+    @Bean
+    fun provide${entity.name}IdModule(): SimpleModule {
+        return ${entity.name}IdJacksonModule()
+    }
+}
+
+class ${entity.name}IdJacksonModule : SimpleModule() {
+    init {
+        addDeserializer(${entity.name}Id::class.java, ${entity.name}IdJsonDeserializer())
+        addSerializer(${entity.name}Id::class.java, ${entity.name}IdJsonSerializer())
+    }
+}
+
+
+internal class ${entity.name}IdJsonSerializer : JsonSerializer<${entity.name}Id?>() {
+    override fun serialize(value: ${entity.name}Id?, gen: JsonGenerator, serializers: SerializerProvider?) {
+        gen.writeString(value?.uuid.toString())
+    }
+}
+
+internal class ${entity.name}IdJsonDeserializer : JsonDeserializer<${entity.name}Id?>() {
+    override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): ${entity.name}Id {
+        return p.getValueAsString().let {
+            ${entity.name}Id(UUID.fromString(it))
+        }
+    }
+}

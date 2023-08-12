@@ -1,0 +1,16 @@
+package io.immortal.spicemustflow.application.${fn.toLowerCase($entity.name)}
+
+import io.immortal.spicemustflow.common.constants.DEFAULT_STRING_SIZE
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
+
+class ${entity.name}SaveCommand(
+#foreach( $attribute in $entity.nonKeyAttributes )
+    @field:NotBlank @field:Size(max = DEFAULT_STRING_SIZE) val $attribute.name: $attribute.type = "";
+#end
+#if ( $entity.hasLinks() )
+#foreach( $link in $entity.links )
+    val $link.fieldName: ${link.fieldType}Dto ,
+#end
+#end
+)

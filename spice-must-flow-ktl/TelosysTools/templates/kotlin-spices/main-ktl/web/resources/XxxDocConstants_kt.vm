@@ -1,0 +1,3 @@
+package io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}
+
+const val $fn.toUpperCase($entity.name)S_TAG = "${entity.name}s"

@@ -1,0 +1,29 @@
+package io.immortal.spicemustflow.infrastructure.repository.${fn.toLowerCase($entity.name)}
+
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Id
+import io.immortal.spicemustflow.domain.${fn.toLowerCase($entity.name)}.${entity.name}Query
+import io.immortal.spicemustflow.infrastructure.common.persistence.get
+import jakarta.persistence.criteria.Predicate
+import org.springframework.data.jpa.domain.Specification
+
+fun find${entity.name}sSpec(query: ${entity.name}Query): Specification<${entity.name}JpaEntity> {
+    return Specification<${entity.name}JpaEntity> { root, _, builder ->
+        with(builder) {
+            val predicates: MutableList<Predicate> = mutableListOf()
+#foreach( $attribute in $entity.nonKeyAttributes )
+query.${attribute.name}s?.let { predicates.add(root.get(${entity.name}JpaEntity::${attribute.name}).`in`(it)) }
+#end
+
+            query.ids?.let {
+                predicates.add(root.get(${entity.name}JpaEntity::id).`in`(query.ids.map { it.uuid }))
+            }
+            and(*predicates.toTypedArray())
+        }
+    }
+}
+
+fun findByIdsSpec(ids: List<${entity.name}Id>?): Specification<${entity.name}JpaEntity> {
+    return Specification<${entity.name}JpaEntity> { root, _, _ ->
+        root.get(${entity.name}JpaEntity::id).`in`(ids?.map { it.uuid })
+    }
+}

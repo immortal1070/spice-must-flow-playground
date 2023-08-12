@@ -1,0 +1,169 @@
+import io.immortal.spicemustflow.clients.${fn.toLowerCase($entity.name)}.$fn.toUpperCase($entity.name)_PARAM_NAME
+import io.immortal.spicemustflow.clients.${fn.toLowerCase($entity.name)}.${entity.name}DataCreator
+import io.immortal.spicemustflow.clients.${fn.toLowerCase($entity.name)}.${entity.name}TestClient
+import io.immortal.spicemustflow.clients.${fn.toLowerCase($entity.name)}.${entity.name}TestValidator
+import io.immortal.spicemustflow.common.CreatedData
+import io.immortal.spicemustflow.common.TestResponse
+import io.immortal.spicemustflow.common.TestResponseWithBody
+import io.immortal.spicemustflow.common.constants.DEFAULT_STRING_SIZE
+import io.immortal.spicemustflow.common.restassured.RestAssuredTest
+import io.immortal.spicemustflow.common.utils.TestRandom.Companion.randomString
+import io.immortal.spicemustflow.common.validation.WebValidator
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.$fn.toUpperCase($entity.name)_PATH
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}Dto
+import io.immortal.spicemustflow.web.resources.${fn.toLowerCase($entity.name)}.dto.${entity.name}RestSaveCommand
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
+import kotlin.test.assertNotNull
+
+//Comment @SpringBootTest and @WithDatabase to run tests over your local server
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+//@WithDatabase
+class ${entity.name}RestTests : RestAssuredTest() {
+    private val client: ${entity.name}TestClient = ${entity.name}TestClient()
+    private val dataCreator: ${entity.name}DataCreator = ${entity.name}DataCreator()
+    private val ${fn.toLowerCase($entity.name)}Validator: ${entity.name}TestValidator = ${entity.name}TestValidator()
+    private val webValidator: WebValidator = WebValidator()
+
+    @AfterAll
+    fun cleanup() {
+        dataCreator.cleanup()
+    }
+
+    @Test
+    fun `test ${fn.toLowerCase($entity.name)} creation`() {
+        val ${fn.toLowerCase($entity.name)}SaveCommand = ${entity.name}RestSaveCommand(randomString())
+        val createdResult: TestResponseWithBody<${entity.name}Id> = client.validCreate(${fn.toLowerCase($entity.name)}SaveCommand)
+        val createdId: ${entity.name}Id = createdResult.body
+
+        val found: TestResponseWithBody<${entity.name}Dto> = client.findById(createdId)
+
+        assertThat(found.body.id).isEqualTo(createdId)
+        ${fn.toLowerCase($entity.name)}Validator.validate(found.body, ${fn.toLowerCase($entity.name)}SaveCommand)
+        found.response.printAsPrettyString()
+    }
+
+    @Test
+    fun `test ${fn.toLowerCase($entity.name)} creation with wrong parameter`() {
+        val invalidName = newInvalidName()
+        val ${fn.toLowerCase($entity.name)}SaveCommand = ${entity.name}RestSaveCommand(invalidName)
+        val createdResponse: TestResponse = client.createRequest(${fn.toLowerCase($entity.name)}SaveCommand)
+
+        webValidator.validateDefaultMaxSizeError(
+            response = createdResponse,
+            path = $fn.toUpperCase($entity.name)_PATH,
+            invalidValue = invalidName)
+    }
+
+    @Test
+    fun `test ${fn.toLowerCase($entity.name)} update`() {
+        val ${fn.toLowerCase($entity.name)}SaveCommand = ${entity.name}RestSaveCommand(randomString())
+        val created: TestResponseWithBody<${entity.name}Id> = client.validCreate(${fn.toLowerCase($entity.name)}SaveCommand)
+
+        client.findById(created.body) // caching the result
+
+        val ${fn.toLowerCase($entity.name)}UpdateDto = ${entity.name}RestSaveCommand(randomString())
+
+        client.validUpdate(created.body, ${fn.toLowerCase($entity.name)}UpdateDto)
+
+        val found: TestResponseWithBody<${entity.name}Dto> = client.findById(created.body)
+
+        ${fn.toLowerCase($entity.name)}Validator.validate(found.body, ${fn.toLowerCase($entity.name)}UpdateDto)
+    }
+
+    @Test
+    fun `test ${fn.toLowerCase($entity.name)} update with wrong parameter`() {
+        val ${fn.toLowerCase($entity.name)}SaveCommand = ${entity.name}RestSaveCommand(randomString())
+        val created: TestResponseWithBody<${entity.name}Id> = client.validCreate(${fn.toLowerCase($entity.name)}SaveCommand)
+        val createdId: ${entity.name}Id = created.body
+
+        val invalidName = newInvalidName()
+        val ${fn.toLowerCase($entity.name)}UpdateDto = ${entity.name}RestSaveCommand(invalidName)
+        val updatedResponse = client.updateRequest(createdId, ${fn.toLowerCase($entity.name)}UpdateDto)
+
+        webValidator.validateDefaultMaxSizeError(
+            response = updatedResponse,
+            path = "#[[$]]#$fn.toUpperCase($entity.name)_PATH/#[[$createdId",]]#
+            invalidValue = invalidName)
+    }
+
+    @Test
+    fun `test ${fn.toLowerCase($entity.name)} deletion`() {
+        val ${fn.toLowerCase($entity.name)}SaveCommand = ${entity.name}RestSaveCommand(randomString())
+        val created: TestResponseWithBody<${entity.name}Id> = client.validCreate(${fn.toLowerCase($entity.name)}SaveCommand)
+        val createdId: ${entity.name}Id = created.body
+        assertNotNull(client.findById(createdId))
+
+        val deletedResponse = client.deleteRequest(createdId)
+        deletedResponse.statusCode(HttpStatus.NO_CONTENT.value())
+
+        client.findNone(createdId)
+    }
+
+    @Test
+    fun `test ${fn.toLowerCase($entity.name)} deletion with missing id`() {
+        dataCreator.createRandom${entity.name}s()
+
+        val deletedResponse = client.deleteRequest(client.generateId())
+        deletedResponse.statusCode(HttpStatus.NOT_FOUND.value())
+    }
+
+    @Test
+    fun `test find by name`() {
+        createRandomAndFindOneByName()
+    }
+
+    @Test
+    fun `test that cache is dropped after deletion`() {
+        val oneOfCreated: ${entity.name}Dto = createRandomAndFindOneByName()
+
+        client.deleteRequest(oneOfCreated.id)
+
+        val found: TestResponseWithBody<List<${entity.name}Dto>> =
+            client.find($fn.toUpperCase($entity.name)_PARAM_NAME to oneOfCreated.name)
+
+        assertThat(found.body.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `test find by name when missing`() {
+        dataCreator.createRandom${entity.name}s()
+
+        client.findNone(mapOf($fn.toUpperCase($entity.name)_PARAM_NAME to "missing name"))
+    }
+
+    @Test
+    fun `test find by id`() {
+        val preparedData = dataCreator.createRandom${entity.name}s()
+        val anyCreatedId = preparedData.random().createdResponse.body
+
+        val found: TestResponseWithBody<${entity.name}Dto> = client.findById(anyCreatedId)
+
+        assertThat(found.body.id).isEqualTo(anyCreatedId)
+    }
+
+    @Test
+    fun `test find by id when no data`() {
+        client.findNone(client.generateId())
+    }
+
+    private fun createRandomAndFindOneByName(): ${entity.name}Dto {
+        val createdData: List<CreatedData<${entity.name}RestSaveCommand, ${entity.name}Id>> =
+            dataCreator.createRandom${entity.name}s()
+        val anyInputDto: ${entity.name}RestSaveCommand = createdData.random().inputDto
+
+        val found: TestResponseWithBody<List<${entity.name}Dto>> =
+            client.find($fn.toUpperCase($entity.name)_PARAM_NAME to anyInputDto.name)
+
+        assertThat(found.body.size).isEqualTo(1)
+
+        val foundEntry: ${entity.name}Dto = found.body[0]
+        assertThat(foundEntry.name).isEqualTo(anyInputDto.name)
+
+        return foundEntry
+    }
+
+    private fun newInvalidName(): String = randomString(DEFAULT_STRING_SIZE + 1)
+}

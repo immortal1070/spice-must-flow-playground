@@ -1,0 +1,4 @@
+package io.immortal.spicemustflow.application.${fn.toLowerCase($entity.name)}.cache
+
+const val $fn.toUpperCase($entity.name)_BY_ID_CACHE = "${fn.toLowerCase($entity.name)}ById"
+const val $fn.toUpperCase($entity.name)_SEARCH_CACHE = "${fn.toLowerCase($entity.name)}Search"
