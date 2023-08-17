@@ -1,4 +1,4 @@
-# spice-must-flow
+# recipes-kotlin-spring-ddd
 This project contains an example a REST web service built with Kotlin and Spring based on DDD principles and best practices.
 
 The project holds 2 simple Domain Objects:
