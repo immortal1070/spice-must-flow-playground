@@ -2,8 +2,6 @@ package io.immortal.spicemustflow.common.restassured
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.immortal.spicemustflow.web.resources.ingredient.IngredientIdJacksonModule
-import io.immortal.spicemustflow.web.resources.recipe.RecipeIdJacksonModule
 import io.restassured.RestAssured
 import io.restassured.config.ObjectMapperConfig.objectMapperConfig
 import io.restassured.config.RestAssuredConfig
@@ -30,23 +28,14 @@ abstract class RestAssuredTest {
             objectMapperConfig().jackson2ObjectMapperFactory(
                 object : DefaultJackson2ObjectMapperFactory() {
                     override fun create(cls: Type?, charset: String?): ObjectMapper {
-                        val objectMapper = super.create(cls, charset)
-                        configureObjectMapper(objectMapper)
-                        return objectMapper
+                        return super.create(cls, charset)
                     }
                 }
             ))
     }
 
-    private fun configureObjectMapper(objectMapper: ObjectMapper?) {
-        objectMapper
-            ?.registerModule(IngredientIdJacksonModule())
-            ?.registerModule(RecipeIdJacksonModule())
-    }
-
     fun getObjectMapper(): ObjectMapper {
         val objectMapper = jacksonObjectMapper()
-        configureObjectMapper(objectMapper)
         return objectMapper
     }
 }

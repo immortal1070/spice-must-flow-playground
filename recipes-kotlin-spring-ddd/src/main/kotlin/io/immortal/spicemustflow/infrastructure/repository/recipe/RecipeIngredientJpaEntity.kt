@@ -6,13 +6,17 @@ import io.immortal.spicemustflow.infrastructure.common.persistence.JpaCreateInfo
 import io.immortal.spicemustflow.infrastructure.repository.ingredient.IngredientJpaEntity
 import jakarta.persistence.*
 import java.io.Serializable
+import java.math.BigDecimal
 import java.util.*
+
+private const val COLUMN_RECIPE_ID = "recipe_id"
+private const val COLUMN_INGREDIENT_ID = "ingredient_id"
 
 @Embeddable
 class RecipeIngredientId(
-    @Column(name = "recipe_id")
+    @Column(name = COLUMN_RECIPE_ID)
     val recipeId: UUID,
-    @Column(name = "ingredient_id")
+    @Column(name = COLUMN_INGREDIENT_ID)
     val ingredientId: UUID
 ) : Serializable
 
@@ -24,20 +28,20 @@ class RecipeIngredientJpaEntity(
     val id: RecipeIngredientId,
 
     @Column(name = "amount")
-    var amount: Double
+    var amount: BigDecimal
 ) : BaseNotUpdatableJpaEntity {
 
     @ManyToOne
-    @JoinColumn(name = "recipe_id", insertable = false, updatable = false)
+    @JoinColumn(name = COLUMN_RECIPE_ID, insertable = false, updatable = false)
     var recipe: RecipeJpaEntity? = null
-        set(value) {
+        set(_) {
             throw IllegalAccessError("this relation is set using embedded id")
         }
 
     @ManyToOne
-    @JoinColumn(name = "ingredient_id", insertable = false, updatable = false)
+    @JoinColumn(name = COLUMN_INGREDIENT_ID, insertable = false, updatable = false)
     var ingredient: IngredientJpaEntity? = null
-        set(value) {
+        set(_) {
             throw IllegalAccessError("this relation is set using embedded id")
         }
 

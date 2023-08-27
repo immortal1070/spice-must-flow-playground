@@ -1,24 +1,22 @@
 package io.immortal.spicemustflow.clients.recipe
 
-import RecipeIngredientDto
 import io.immortal.spicemustflow.common.CreatedData
 import io.immortal.spicemustflow.common.utils.TestRandom.Companion.randomInt
 import io.immortal.spicemustflow.common.utils.TestRandom.Companion.randomString
-import io.immortal.spicemustflow.domain.recipe.RecipeId
-import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientDto
+import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeIngredientDto
+import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeRestId
 import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeRestSaveCommand
-
 import kotlin.random.Random
 
 class RecipeDataCreator {
     private val recipeClient: RecipeTestClient = RecipeTestClient()
-    private val createdIds: MutableList<RecipeId> = mutableListOf()
+    private val createdIds: MutableList<RecipeRestId> = mutableListOf()
 
-    fun createRandomRecipes(): List<CreatedData<RecipeRestSaveCommand, RecipeId>> {
-        return createRecipes(newRandomSaveDtos())
+    fun createRandomRecipes(): List<CreatedData<RecipeRestSaveCommand, RecipeRestId>> {
+        return createRecipe(newRandomSaveDtos())
     }
 
-    fun createRecipes(saveDtos: List<RecipeRestSaveCommand>): List<CreatedData<RecipeRestSaveCommand, RecipeId>> {
+    fun createRecipe(saveDtos: List<RecipeRestSaveCommand>): List<CreatedData<RecipeRestSaveCommand, RecipeRestId>> {
         return saveDtos.map {
             CreatedData(
                 inputDto = it,
@@ -45,9 +43,15 @@ class RecipeDataCreator {
     }
 
     fun cleanup() {
-        //TODO check parallel test run behaviour
         val idsToDelete = createdIds.toList()
-        recipeClient.deleteRequest(idsToDelete)
-        createdIds.removeAll(idsToDelete)
+        if (idsToDelete.isNotEmpty()) {
+            println("deleting $idsToDelete")
+            recipeClient.deleteRequest(idsToDelete)
+            createdIds.removeAll(idsToDelete)
+        }
+    }
+
+    fun createRecipe(saveDto: RecipeRestSaveCommand): CreatedData<RecipeRestSaveCommand, RecipeRestId> {
+        return createRecipe(listOf(saveDto))[0]
     }
 }

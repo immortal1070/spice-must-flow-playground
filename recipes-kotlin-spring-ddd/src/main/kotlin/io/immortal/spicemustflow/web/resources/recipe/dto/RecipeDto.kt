@@ -1,12 +1,10 @@
 package io.immortal.spicemustflow.web.resources.recipe.dto
 
-import RecipeIngredientDto
-import io.immortal.spicemustflow.domain.recipe.RecipeId
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "DTO presenting the recipe")
 data class RecipeDto(
-    val id: RecipeId,
+    val id: RecipeRestId,
 
     @Schema(example = "potato")
     val name: String,

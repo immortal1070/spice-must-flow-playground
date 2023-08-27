@@ -1,10 +1,11 @@
 package io.immortal.spicemustflow.infrastructure.common.persistence
 
-import io.immortal.spicemustflow.infrastructure.common.persistence.ColumnConstants.Companion.CREATED_AT
-import io.immortal.spicemustflow.infrastructure.common.persistence.ColumnConstants.Companion.CREATOR
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import java.time.OffsetDateTime
+
+const val CREATED_AT = "created_at"
+const val CREATOR = "creator"
 
 @Embeddable
 class JpaCreateInfo(

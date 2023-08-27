@@ -1,6 +1,5 @@
 package io.immortal.spicemustflow.web.resources.recipe.dto
 
-import RecipeIngredientDto
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "DTO for recipe which can be used for both create and update operations")
@@ -12,7 +11,7 @@ class RecipeRestSaveCommand(
     val content: String,
 
     @Schema(description = "Unique name of the recipe", example = "30")
-    val cookingMinutes: Int,
+    val cookingMinutes: Int = 0,
 
-    val ingredients: List<RecipeIngredientDto>
+    val ingredients: List<RecipeIngredientDto> = listOf()
 )

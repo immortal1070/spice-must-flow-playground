@@ -11,9 +11,7 @@ import java.util.*
 @Table(name = "ingredient")
 @EntityListeners(BaseJpaEntityListener::class)
 class IngredientJpaEntity(var name: String) : BaseJpaEntity {
-
     @Id
-    @GeneratedValue
     var id: UUID? = null
 
     @Embedded

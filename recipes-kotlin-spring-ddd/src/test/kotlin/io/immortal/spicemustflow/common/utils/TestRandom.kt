@@ -1,6 +1,7 @@
 package io.immortal.spicemustflow.common.utils
 
 import io.immortal.spicemustflow.common.constants.DEFAULT_STRING_SIZE
+import java.math.BigDecimal
 import kotlin.random.Random
 
 
@@ -17,8 +18,8 @@ class TestRandom {
             return Random.nextInt(max)
         }
 
-        fun randomDouble(max: Double = 10000.0): Double {
-            return Random.nextDouble(max)
+        fun randomBigDecimal(max: Double = 10000.0): BigDecimal {
+            return BigDecimal(Random.nextDouble(max))
         }
     }
 }

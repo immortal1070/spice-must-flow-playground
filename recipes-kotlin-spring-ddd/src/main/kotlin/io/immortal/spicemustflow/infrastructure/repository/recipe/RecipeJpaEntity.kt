@@ -26,7 +26,6 @@ class RecipeJpaEntity(
     var ingredients: List<RecipeIngredientJpaEntity>? = null
 
     @Id
-    @GeneratedValue
     var id: UUID? = null
 
     @Embedded

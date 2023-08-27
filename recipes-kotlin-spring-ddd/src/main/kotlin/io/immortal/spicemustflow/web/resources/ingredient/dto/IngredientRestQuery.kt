@@ -1,13 +1,13 @@
 package io.immortal.spicemustflow.web.resources.ingredient.dto
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import io.immortal.spicemustflow.domain.ingredient.IngredientId
 import org.springdoc.core.annotations.ParameterObject
+import org.springframework.web.bind.annotation.RequestParam
 
 @ParameterObject
 class IngredientRestQuery(
-    @JsonProperty("id")
-    val ids: List<IngredientId>? = null,
-    @JsonProperty("name")
+    @RequestParam
+    val ids: List<IngredientRestId>? = null,
+
+    @RequestParam
     val names: List<String>? = null
 )

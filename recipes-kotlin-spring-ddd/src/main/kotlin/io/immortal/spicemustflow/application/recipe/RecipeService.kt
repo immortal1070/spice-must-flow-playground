@@ -1,7 +1,6 @@
 package io.immortal.spicemustflow.application.recipe
 
-import io.immortal.spicemustflow.application.recipe.cache.RECIPE_BY_ID_CACHE
-import io.immortal.spicemustflow.application.recipe.cache.RECIPE_SEARCH_CACHE
+import io.immortal.spicemustflow.application.recipe.validation.ValidRecipeId
 import io.immortal.spicemustflow.common.stereotype.ApplicationService
 import io.immortal.spicemustflow.domain.recipe.*
 import jakarta.validation.Valid
@@ -22,21 +21,25 @@ class RecipeService(
     fun find(findParams: RecipeQuery): List<Recipe> = recipeRepository.find(findParams)
 
     fun create(@Valid saveCommand: RecipeSaveCommand): RecipeId {
+        val newId = recipeRepository.generateId()
         val recipe: Recipe = toRecipe(
-            recipeRepository.generateId(), saveCommand
+            newId, saveCommand
         )
-        val saved: Recipe = recipeRepository.create(recipe).also {
+        recipeRepository.create(recipe).also {
             publisher.publishEvent(RecipeCreated(RecipeEventDto(it)))
         }
-        return saved.id
+        return newId
     }
 
-    //   TODO add @RecipeId validation
-    fun update(id: RecipeId, @Valid saveCommand: RecipeSaveCommand) {
+    fun update(@ValidRecipeId id: RecipeId, @Valid saveCommand: RecipeSaveCommand) {
         val recipe: Recipe = toRecipe(id, saveCommand)
         recipeRepository.update(recipe).also {
             publisher.publishEvent(RecipeUpdated(RecipeEventDto(it)))
         }
+    }
+
+    fun delete(@ValidRecipeId id: RecipeId) {
+        delete(listOf(id))
     }
 
     fun delete(ids: List<RecipeId>) {

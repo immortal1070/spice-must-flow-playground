@@ -1,30 +1,38 @@
 # recipes-kotlin-spring-ddd
-This project contains an example a REST web service built with Kotlin and Spring based on DDD principles and best practices.
+This project contains an example of a REST web service based on [Domain Driven Design](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/ddd-oriented-microservice). 
+The goal is to give an example of how "pure DDD" project may look like. It's intentionally has all the 
+possible layers and classes.
 
-The project holds 2 simple Domain Objects:
+The project holds 2 objects:
 * ingredient
 * recipe - can hold a collection of recipe ingredients with a specified amount
 
+Approaches used in this project
+* DDD-lite structure based on [Implementing Domain-Driven Design](https://www.oreilly.com/library/view/implementing-domain-driven-design/9780133039900/)
+* REST API designed with CQRS
+* Stereotypes are used to untie project from a DI framework
+* Component tests use clients and validators - to isolate the tests logic from the implementation details
+
 ## Running the application
-### dev mode
+### Dev mode
 You can start the application by running:
 ```
 ./gradlew bootRun
 ```
 And then check available REST endpoints at [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
-### build and run with Docker
+### Build and run with Docker
 First create a docker image with the following command:
 ```
-./gradlew bootBuildImage --imageName=immortal/spice-must-flow
+./gradlew bootBuildImage --imageName=immortal/recipes
 ``` 
 Then start the application by running:
 ```
-docker run -p 8080:8080 -e POSTGRES_HOST=host.docker.internal --add-host=host.docker.internal:host-gateway immortal/spice-must-flow
+docker run -p 8080:8080 -e POSTGRES_HOST=host.docker.internal --add-host=host.docker.internal:host-gateway immortal/recipes
 ```
 or with docker-compose:
 ```
-docker-compose -f ./docker/docker-compose.yaml up spice-must-flow
+docker-compose -f ./docker/docker-compose.yaml up recipes
 ```
 
 ## Tests
@@ -35,7 +43,7 @@ Service is covered with Component tests which test the REST endpoints using Rest
 ```
 ### Running tests over local service and database
 One can comment next lines:
-```java
+```
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @WithDatabase
 ```

@@ -9,11 +9,6 @@ data class CreatedData<I, T>(val inputDto: I, val createdResponse: TestResponseW
 data class TestResponseWithBody<T>(val response: TestResponse, val body: T)
 
 class TestResponse(private val response: ValidatableResponse) {
-    fun statusCode(expectedStatusCode: Int): TestResponse {
-        response.statusCode(expectedStatusCode)
-        return this
-    }
-
     fun <T> extract(asClass: Class<T>): T = response Extract {
         As(asClass)
     }
