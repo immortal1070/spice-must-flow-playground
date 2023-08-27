@@ -1,10 +1,11 @@
 package io.immortal.spicemustflow.infrastructure.common.persistence
 
-import io.immortal.spicemustflow.infrastructure.common.persistence.ColumnConstants.Companion.UPDATED_AT
-import io.immortal.spicemustflow.infrastructure.common.persistence.ColumnConstants.Companion.UPDATER
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import java.time.OffsetDateTime
+
+const val UPDATED_AT = "updated_at"
+const val UPDATER = "updater"
 
 @Embeddable
 class JpaUpdateInfo(

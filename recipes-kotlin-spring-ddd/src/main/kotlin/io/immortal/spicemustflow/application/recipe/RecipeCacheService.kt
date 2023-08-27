@@ -1,4 +1,4 @@
-package io.immortal.spicemustflow.application.recipe.cache
+package io.immortal.spicemustflow.application.recipe
 
 import io.immortal.spicemustflow.common.logging.MethodLogging
 import io.immortal.spicemustflow.common.stereotype.ApplicationScoped
@@ -8,6 +8,9 @@ import io.immortal.spicemustflow.domain.recipe.RecipeId
 import io.immortal.spicemustflow.domain.recipe.RecipeUpdated
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.transaction.event.TransactionalEventListener
+
+const val RECIPE_BY_ID_CACHE = "recipeById"
+const val RECIPE_SEARCH_CACHE = "recipeSearch"
 
 @ApplicationScoped
 @MethodLogging

@@ -10,7 +10,7 @@ data class TestResponseWithBody<T>(val response: TestResponse, val body: T)
 
 class TestResponse(private val response: ValidatableResponse) {
     fun statusCode(expectedStatusCode: Int): TestResponse {
-        response.statusCode(expectedStatusCode)
+        response.assertThat().statusCode(expectedStatusCode)
         return this
     }
 

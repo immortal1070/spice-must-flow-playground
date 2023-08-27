@@ -1,10 +1,11 @@
 package io.immortal.spicemustflow.web.resources.ingredient
 
 import io.immortal.spicemustflow.application.ingredient.IngredientService
-import io.immortal.spicemustflow.common.constants.UUID_PATH
 import io.immortal.spicemustflow.common.stereotype.WebRestController
-import io.immortal.spicemustflow.domain.ingredient.IngredientId
+import io.immortal.spicemustflow.web.UUID_PATH
+import io.immortal.spicemustflow.web.configuration.INGREDIENTS_TAG
 import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientDto
+import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestId
 import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestQuery
 import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestSaveCommand
 import io.swagger.v3.oas.annotations.Operation
@@ -26,7 +27,9 @@ class IngredientController(
     @Operation(
         operationId = "findIngredients",
         summary = "search ingredients by parameters. Parameters are joined with AND. Is some are not present - parameters are ignored",
-        description = "search by parameters"
+        description = "Collections are joined with OR and parameters are joined with AND. " +
+                "Is some are not present - parameters are ignored. Example: ?id=1,2&name=potato,cucumber parameters " +
+                "will be transformed to (id = 1 OR id = 2) AND (name = potato OR name = cucumber)"
     )
     fun find(params: IngredientRestQuery): List<IngredientDto> {
         return ingredientService.find(transformer.toQuery(params)).map { transformer.toDto(it) }
@@ -37,8 +40,8 @@ class IngredientController(
         operationId = "getIngredientById",
         summary = "get an ingredient by id"
     )
-    fun get(@PathVariable id: IngredientId): IngredientDto? {
-        return ingredientService.findById(id)?.let { transformer.toDto(it) }
+    fun get(@PathVariable id: IngredientRestId): IngredientDto? {
+        return ingredientService.findById(id.toIngredientId())?.let { transformer.toDto(it) }
     }
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -47,8 +50,8 @@ class IngredientController(
         summary = "create an ingredient"
     )
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody saveCommand: IngredientRestSaveCommand): IngredientId {
-        return ingredientService.create(transformer.toSaveCommand(saveCommand))
+    fun create(@RequestBody saveCommand: IngredientRestSaveCommand): IngredientRestId {
+        return IngredientRestId(ingredientService.create(transformer.toSaveCommand(saveCommand)))
     }
 
     @PutMapping(UUID_PATH, consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -56,8 +59,8 @@ class IngredientController(
         operationId = "updateIngredient",
         summary = "update an ingredient"
     )
-    fun update(@PathVariable id: IngredientId, @RequestBody saveCommand: IngredientRestSaveCommand) {
-        ingredientService.update(id, transformer.toSaveCommand(saveCommand))
+    fun update(@PathVariable id: IngredientRestId, @RequestBody saveCommand: IngredientRestSaveCommand) {
+        ingredientService.update(id.toIngredientId(), transformer.toSaveCommand(saveCommand))
     }
 
     @DeleteMapping(UUID_PATH)
@@ -66,8 +69,8 @@ class IngredientController(
         summary = "delete an ingredient by id"
     )
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun delete(@PathVariable id: IngredientId) {
-        ingredientService.delete(listOf(id))
+    fun delete(@PathVariable id: IngredientRestId) {
+        ingredientService.delete(listOf(id).map { it.toIngredientId() })
     }
 
     @DeleteMapping
@@ -76,7 +79,7 @@ class IngredientController(
         summary = "delete a list of ingredients"
     )
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun delete(@RequestParam(name = "id") ids: List<IngredientId>) {
-        ingredientService.delete(ids)
+    fun delete(@RequestParam ids: List<IngredientRestId>) {
+        ingredientService.delete(ids.map { it.toIngredientId() })
     }
 }

@@ -6,12 +6,12 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: spice_must_flow
+      POSTGRES_DB: recipes
     ports:
       - "5433:5432"
 
-  spice-must-flow:
-      image: immortal/spice-must-flow
+  recipes:
+      image: immortal/recipes
       environment:
           POSTGRES_HOST: host.docker.internal
       ports:

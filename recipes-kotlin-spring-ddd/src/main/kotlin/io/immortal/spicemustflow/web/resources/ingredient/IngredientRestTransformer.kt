@@ -5,6 +5,7 @@ import io.immortal.spicemustflow.common.stereotype.ApplicationScoped
 import io.immortal.spicemustflow.domain.ingredient.Ingredient
 import io.immortal.spicemustflow.domain.ingredient.IngredientQuery
 import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientDto
+import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestId
 import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestQuery
 import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestSaveCommand
 
@@ -12,7 +13,7 @@ import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestSave
 class IngredientRestTransformer {
     fun toDto(ingredient: Ingredient): IngredientDto = ingredient.run {
         IngredientDto(
-            id = id,
+            id = IngredientRestId(id),
             name = name,
         )
     }
@@ -26,7 +27,7 @@ class IngredientRestTransformer {
     fun toQuery(query: IngredientRestQuery): IngredientQuery = query.run {
         IngredientQuery(
             names = names,
-            ids = ids,
+            ids = ids?.map { it.toIngredientId() }
         )
     }
 }

@@ -11,7 +11,7 @@ fun findRecipesSpec(query: RecipeQuery): Specification<RecipeJpaEntity> {
         with(builder) {
             val predicates: MutableList<Predicate> = mutableListOf()
             query.names?.let { predicates.add(root.get(RecipeJpaEntity::name).`in`(it)) }
-            query.contents?.let { predicates.add(root.get(RecipeJpaEntity::content).`in`(it)) }
+            query.content?.let { predicates.add(root.get(RecipeJpaEntity::content).`in`(it)) }
             query.ids?.let {
                 predicates.add(root.get(RecipeJpaEntity::id).`in`(it.map { id -> id.uuid }))
             }

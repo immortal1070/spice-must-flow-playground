@@ -10,15 +10,15 @@ import jakarta.validation.constraints.Size
 class RecipeSaveCommand(
     @field:NotBlank
     @field:Size(max = DEFAULT_STRING_SIZE)
-    val name: String = "",
+    val name: String,
 
     @field:NotBlank
     @field:Size(max = DEFAULT_STRING_SIZE)
-    val content: String = "",
+    val content: String,
 
     @field:Min(0)
     val cookingMinutes: Int = 0,
 
     @field:ValidRecipeIngredientsList
-    val ingredients: List<RecipeIngredient>
+    val ingredients: List<RecipeIngredient> = listOf()
 )

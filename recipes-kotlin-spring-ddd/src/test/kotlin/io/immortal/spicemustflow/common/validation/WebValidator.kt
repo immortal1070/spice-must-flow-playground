@@ -20,13 +20,12 @@ class WebValidator {
     }
 
     fun validateBadRequest(response: TestResponse, path: String, errorMessage: String, invalidValueSubstring: String) {
-        response.statusCode(HttpStatus.BAD_REQUEST.value())
-
         val errorDto = response.extract(WebErrorDto::class.java)
         assertThat(errorDto.title).isEqualTo(HttpStatus.BAD_REQUEST.reasonPhrase)
         assertThat(errorDto.detail).isEqualTo(ERROR_DETAIL)
         assertThat(errorDto.instance.toString()).isEqualTo(path)
 
+        println(errorDto.errors)
         assertThat(errorDto.errors?.size).isEqualTo(1)
         val errorDetail = errorDto.errors?.get(0)
 

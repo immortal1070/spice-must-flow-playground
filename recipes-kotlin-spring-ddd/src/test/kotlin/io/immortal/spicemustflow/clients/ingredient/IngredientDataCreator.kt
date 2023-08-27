@@ -2,19 +2,20 @@ package io.immortal.spicemustflow.clients.ingredient
 
 import io.immortal.spicemustflow.common.CreatedData
 import io.immortal.spicemustflow.common.utils.TestRandom.Companion.randomString
-import io.immortal.spicemustflow.domain.ingredient.IngredientId
+import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestId
 import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestSaveCommand
+import java.util.Collections.synchronizedList
 import kotlin.random.Random
 
 class IngredientDataCreator {
     private val ingredientClient: IngredientTestClient = IngredientTestClient()
-    private val createdIds: MutableList<IngredientId> = mutableListOf()
+    private val createdIds: MutableList<IngredientRestId> = synchronizedList(mutableListOf())
 
-    fun createRandomIngredients(): List<CreatedData<IngredientRestSaveCommand, IngredientId>> {
+    fun createRandomIngredients(): List<CreatedData<IngredientRestSaveCommand, IngredientRestId>> {
         return createIngredients(newRandomSaveCommands())
     }
 
-    fun createIngredients(saveDtos: List<IngredientRestSaveCommand>): List<CreatedData<IngredientRestSaveCommand, IngredientId>> {
+    fun createIngredients(saveDtos: List<IngredientRestSaveCommand>): List<CreatedData<IngredientRestSaveCommand, IngredientRestId>> {
         return saveDtos.map {
             CreatedData(
                 inputDto = it,
@@ -33,9 +34,10 @@ class IngredientDataCreator {
     }
 
     fun cleanup() {
-        //TODO check parallel test run behaviour
         val idsToDelete = createdIds.toList()
-        ingredientClient.deleteRequest(idsToDelete)
-        createdIds.removeAll(idsToDelete)
+        if (idsToDelete.isNotEmpty()) {
+            ingredientClient.deleteRequest(idsToDelete)
+            createdIds.removeAll(idsToDelete)
+        }
     }
 }

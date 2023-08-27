@@ -11,10 +11,10 @@ import io.immortal.spicemustflow.common.constants.DEFAULT_STRING_SIZE
 import io.immortal.spicemustflow.common.restassured.RestAssuredTest
 import io.immortal.spicemustflow.common.utils.TestRandom.Companion.randomString
 import io.immortal.spicemustflow.common.validation.WebValidator
-import io.immortal.spicemustflow.domain.ingredient.IngredientId
 import io.immortal.spicemustflow.testcontainers.WithDatabase
 import io.immortal.spicemustflow.web.resources.ingredient.INGREDIENT_PATH
 import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientDto
+import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestId
 import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestSaveCommand
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
@@ -40,8 +40,8 @@ class IngredientRestTests : RestAssuredTest() {
     @Test
     fun `test ingredient creation`() {
         val ingredientSaveCommand = IngredientRestSaveCommand(randomString())
-        val createdResult: TestResponseWithBody<IngredientId> = client.validCreate(ingredientSaveCommand)
-        val createdId: IngredientId = createdResult.body
+        val createdResult: TestResponseWithBody<IngredientRestId> = client.validCreate(ingredientSaveCommand)
+        val createdId: IngredientRestId = createdResult.body
 
         val found: TestResponseWithBody<IngredientDto> = client.findById(createdId)
         assertThat(found.body.id).isEqualTo(createdId)
@@ -53,7 +53,8 @@ class IngredientRestTests : RestAssuredTest() {
     fun `test ingredient creation with wrong parameter`() {
         val invalidName = newInvalidName()
         val ingredientSaveCommand = IngredientRestSaveCommand(invalidName)
-        val createdResponse: TestResponse = client.createRequest(ingredientSaveCommand)
+        val createdResponse: TestResponse = client.createRequest(ingredientSaveCommand,
+            HttpStatus.BAD_REQUEST)
 
         webValidator.validateDefaultMaxSizeError(
             response = createdResponse,
@@ -64,7 +65,7 @@ class IngredientRestTests : RestAssuredTest() {
     @Test
     fun `test ingredient update`() {
         val ingredientSaveCommand = IngredientRestSaveCommand(randomString())
-        val created: TestResponseWithBody<IngredientId> = client.validCreate(ingredientSaveCommand)
+        val created: TestResponseWithBody<IngredientRestId> = client.validCreate(ingredientSaveCommand)
 
         client.findById(created.body) // caching the result
 
@@ -80,12 +81,12 @@ class IngredientRestTests : RestAssuredTest() {
     @Test
     fun `test ingredient update with wrong parameter`() {
         val ingredientSaveCommand = IngredientRestSaveCommand(randomString())
-        val created: TestResponseWithBody<IngredientId> = client.validCreate(ingredientSaveCommand)
-        val createdId: IngredientId = created.body
+        val created: TestResponseWithBody<IngredientRestId> = client.validCreate(ingredientSaveCommand)
+        val createdId: IngredientRestId = created.body
 
         val invalidName = newInvalidName()
         val ingredientUpdateDto = IngredientRestSaveCommand(invalidName)
-        val updatedResponse = client.updateRequest(createdId, ingredientUpdateDto)
+        val updatedResponse = client.updateRequest(createdId, ingredientUpdateDto, HttpStatus.BAD_REQUEST)
 
         webValidator.validateDefaultMaxSizeError(
             response = updatedResponse,
@@ -96,12 +97,11 @@ class IngredientRestTests : RestAssuredTest() {
     @Test
     fun `test ingredient deletion`() {
         val ingredientSaveCommand = IngredientRestSaveCommand(randomString())
-        val created: TestResponseWithBody<IngredientId> = client.validCreate(ingredientSaveCommand)
-        val createdId: IngredientId = created.body
+        val created: TestResponseWithBody<IngredientRestId> = client.validCreate(ingredientSaveCommand)
+        val createdId: IngredientRestId = created.body
         assertNotNull(client.findById(createdId))
 
-        val deletedResponse = client.deleteRequest(createdId)
-        deletedResponse.statusCode(HttpStatus.NO_CONTENT.value())
+        client.deleteRequest(createdId)
 
         client.findNone(createdId)
     }
@@ -110,8 +110,7 @@ class IngredientRestTests : RestAssuredTest() {
     fun `test ingredient deletion with missing id`() {
         dataCreator.createRandomIngredients()
 
-        val deletedResponse = client.deleteRequest(client.generateId())
-        deletedResponse.statusCode(HttpStatus.NOT_FOUND.value())
+        client.deleteRequest(client.generateId())
     }
 
     @Test
@@ -123,7 +122,7 @@ class IngredientRestTests : RestAssuredTest() {
     fun `test that cache is dropped after deletion`() {
         val oneOfCreated: IngredientDto = createRandomAndFindOneByName()
 
-        client.deleteRequest(oneOfCreated.id)
+        client.deleteRequest(oneOfCreated.id,)
 
         val found: TestResponseWithBody<List<IngredientDto>> =
             client.find(INGREDIENT_PARAM_NAME to oneOfCreated.name)
@@ -154,7 +153,7 @@ class IngredientRestTests : RestAssuredTest() {
     }
 
     private fun createRandomAndFindOneByName(): IngredientDto {
-        val createdData: List<CreatedData<IngredientRestSaveCommand, IngredientId>> =
+        val createdData: List<CreatedData<IngredientRestSaveCommand, IngredientRestId>> =
             dataCreator.createRandomIngredients()
         val anyInputDto: IngredientRestSaveCommand = createdData.random().inputDto
 

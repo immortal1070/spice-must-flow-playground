@@ -3,8 +3,8 @@ package io.immortal.spicemustflow.clients.recipe
 import io.immortal.spicemustflow.common.TestResponse
 import io.immortal.spicemustflow.common.TestResponseWithBody
 import io.immortal.spicemustflow.common.restassured.As
-import io.immortal.spicemustflow.domain.recipe.RecipeId
 import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeDto
+import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeRestId
 import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeRestSaveCommand
 import io.restassured.module.kotlin.extensions.*
 import io.restassured.response.ValidatableResponse
@@ -20,8 +20,8 @@ private const val CONTENT_TYPE = "application/json; charset=UTF-16"
 private val REQUEST_MAX_TIME = lessThan(5000L)
 
 class RecipeTestClient {
-    
-    fun findById(id: RecipeId): TestResponseWithBody<RecipeDto> { // use get by id here
+
+    fun findById(id: RecipeRestId): TestResponseWithBody<RecipeDto> { // use get by id here
         val foundResult = find(RECIPE_PARAM_ID to id.uuid)
         assertThat(foundResult.body.size).isEqualTo(1)
         return TestResponseWithBody(foundResult.response, foundResult.body[0])
@@ -48,7 +48,7 @@ class RecipeTestClient {
         return TestResponseWithBody(TestResponse(response), dto)
     }
 
-    fun findNone(id: RecipeId) {
+    fun findNone(id: RecipeRestId) {
         findNone(mapOf(RECIPE_PARAM_ID to id.uuid))
     }
 
@@ -64,7 +64,10 @@ class RecipeTestClient {
         }
     }
 
-    fun createRequest(saveDto: RecipeRestSaveCommand): TestResponse {
+    fun createRequest(
+        saveDto: RecipeRestSaveCommand,
+        expectedStatusCode: HttpStatus = HttpStatus.CREATED
+    ): TestResponse {
         return TestResponse(Given {
             contentType(CONTENT_TYPE)
             body(saveDto)
@@ -72,50 +75,57 @@ class RecipeTestClient {
             post(RESOURCE_ROOT)
         } Then {
             time(REQUEST_MAX_TIME)
+            statusCode(expectedStatusCode.value())
         })
     }
 
-    fun validCreate(saveDto: RecipeRestSaveCommand): TestResponseWithBody<RecipeId> {
+    fun validCreate(saveDto: RecipeRestSaveCommand): TestResponseWithBody<RecipeRestId> {
         val response: TestResponse = createRequest(saveDto)
-            .statusCode(HttpStatus.CREATED.value())
 
-        val dto = response.extract(RecipeId::class.java)
+        val dto = response.extract(RecipeRestId::class.java)
 
         return TestResponseWithBody(response, dto)
     }
 
-    fun updateRequest(id: RecipeId, saveDto: RecipeRestSaveCommand): TestResponse {
+    fun updateRequest(
+        id: RecipeRestId,
+        saveDto: RecipeRestSaveCommand,
+        expectedStatusCode: HttpStatus = HttpStatus.OK
+    ): TestResponse {
         return TestResponse(Given {
             contentType(CONTENT_TYPE)
             body(saveDto)
         } When {
-                 put("$RESOURCE_ROOT/$id")
+            put("$RESOURCE_ROOT/$id")
         } Then {
             time(REQUEST_MAX_TIME)
+            statusCode(expectedStatusCode.value())
         })
     }
 
-    fun validUpdate(id: RecipeId, saveDto: RecipeRestSaveCommand): TestResponse {
-        return updateRequest(id, saveDto).statusCode(HttpStatus.OK.value())
+    fun validUpdate(id: RecipeRestId, saveDto: RecipeRestSaveCommand): TestResponse {
+        return updateRequest(id, saveDto)
     }
 
-    fun deleteRequest(id: RecipeId): TestResponse {
+    fun deleteRequest(id: RecipeRestId, expectedStatusCode: HttpStatus = HttpStatus.NO_CONTENT): TestResponse {
         return TestResponse(When {
-                 delete("$RESOURCE_ROOT/$id")
+            delete("$RESOURCE_ROOT/$id")
         } Then {
             time(REQUEST_MAX_TIME)
+            statusCode(expectedStatusCode.value())
         })
     }
 
-    fun deleteRequest(ids: List<RecipeId>): TestResponse {
+    fun deleteRequest(ids: List<RecipeRestId>, expectedStatusCode: HttpStatus = HttpStatus.NO_CONTENT): TestResponse {
         return TestResponse(Given {
-            queryParams(mapOf(RECIPE_PARAM_ID to ids))
+            queryParams(mapOf(RECIPE_PARAM_ID to ids.joinToString(",")))
         } When {
             delete(RESOURCE_ROOT)
         } Then {
             time(REQUEST_MAX_TIME)
+            statusCode(expectedStatusCode.value())
         })
     }
 
-    fun generateId(): RecipeId = RecipeId(UUID.randomUUID())
+    fun generateId(): RecipeRestId = RecipeRestId(UUID.randomUUID())
 }

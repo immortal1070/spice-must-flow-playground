@@ -1,20 +1,18 @@
 package io.immortal.spicemustflow.web.resources.recipe
 
-import RecipeIngredientDto
 import io.immortal.spicemustflow.application.recipe.RecipeSaveCommand
 import io.immortal.spicemustflow.common.stereotype.ApplicationScoped
 import io.immortal.spicemustflow.domain.recipe.Recipe
 import io.immortal.spicemustflow.domain.recipe.RecipeIngredient
 import io.immortal.spicemustflow.domain.recipe.RecipeQuery
-import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeDto
-import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeRestQuery
-import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeRestSaveCommand
+import io.immortal.spicemustflow.web.resources.ingredient.dto.IngredientRestId
+import io.immortal.spicemustflow.web.resources.recipe.dto.*
 
 @ApplicationScoped
 class RecipeRestTransformer {
     fun toDto(recipe: Recipe): RecipeDto = recipe.run {
         RecipeDto(
-            id = id,
+            id = RecipeRestId(id),
             name = name,
             content = content,
             cookingMinutes = cookingMinutes,
@@ -34,16 +32,16 @@ class RecipeRestTransformer {
     fun toQuery(query: RecipeRestQuery): RecipeQuery = query.run {
         RecipeQuery(
             names = names,
-            contents = contents,
+            content = content,
             cookingMinutes = cookingMinutes,
-            ids = ids,
+            ids = ids?.map { it.toRecipeId() },
             ingredientNames = ingredientNames
         )
     }
 
     private fun toRecipeIngredientsCommand(ingredients: List<RecipeIngredientDto>): List<RecipeIngredient> =
-        ingredients.map { RecipeIngredient(it.ingredientId, it.amount) }
+        ingredients.map { RecipeIngredient(it.ingredientId.toIngredientId(), it.amount) }
 
     private fun toRecipeIngredients(ingredients: List<RecipeIngredient>): List<RecipeIngredientDto> =
-        ingredients.map { RecipeIngredientDto(it.ingredientId, it.amount) }
+        ingredients.map { RecipeIngredientDto(IngredientRestId(it.ingredientId), it.amount) }
 }

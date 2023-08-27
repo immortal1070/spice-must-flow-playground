@@ -1,7 +1,6 @@
 package io.immortal.spicemustflow.application.ingredient
 
-import io.immortal.spicemustflow.application.ingredient.cache.INGREDIENT_BY_ID_CACHE
-import io.immortal.spicemustflow.application.ingredient.cache.INGREDIENT_SEARCH_CACHE
+import io.immortal.spicemustflow.application.recipe.validation.ValidIngredientId
 import io.immortal.spicemustflow.common.stereotype.ApplicationService
 import io.immortal.spicemustflow.domain.ingredient.*
 import jakarta.validation.Valid
@@ -13,7 +12,6 @@ import org.springframework.context.ApplicationEventPublisher
 @CacheConfig(cacheNames = [INGREDIENT_SEARCH_CACHE, INGREDIENT_BY_ID_CACHE])
 class IngredientService(
     private val ingredientRepository: IngredientRepository,
-//    private val ingredientTransformer: IngredientTransformer,
     private val publisher: ApplicationEventPublisher
 ) {
     @Cacheable(INGREDIENT_BY_ID_CACHE)
@@ -23,17 +21,17 @@ class IngredientService(
     fun find(findParams: IngredientQuery): List<Ingredient> = ingredientRepository.find(findParams)
 
     fun create(@Valid saveCommand: IngredientSaveCommand): IngredientId {
+        val newId: IngredientId = ingredientRepository.generateId()
         val ingredient: Ingredient = toIngredient(
-            ingredientRepository.generateId(), saveCommand
+            newId, saveCommand
         )
-        val saved: Ingredient = ingredientRepository.create(ingredient).also {
+        ingredientRepository.create(ingredient).also {
             publisher.publishEvent(IngredientCreated(IngredientEventDto(it)))
         }
-        return saved.id
+        return newId
     }
 
-    //   TODO add @IngredientId validation
-    fun update(id: IngredientId, @Valid saveCommand: IngredientSaveCommand) {
+    fun update(@ValidIngredientId id: IngredientId, @Valid saveCommand: IngredientSaveCommand) {
         val ingredient: Ingredient = toIngredient(id, saveCommand)
         ingredientRepository.update(ingredient).also {
             publisher.publishEvent(IngredientUpdated(IngredientEventDto(it)))

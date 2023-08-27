@@ -1,10 +1,11 @@
 package io.immortal.spicemustflow.web.resources.recipe
 
 import io.immortal.spicemustflow.application.recipe.RecipeService
-import io.immortal.spicemustflow.common.constants.UUID_PATH
 import io.immortal.spicemustflow.common.stereotype.WebRestController
-import io.immortal.spicemustflow.domain.recipe.RecipeId
+import io.immortal.spicemustflow.web.UUID_PATH
+import io.immortal.spicemustflow.web.configuration.RECIPES_TAG
 import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeDto
+import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeRestId
 import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeRestQuery
 import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeRestSaveCommand
 import io.swagger.v3.oas.annotations.Operation
@@ -25,8 +26,10 @@ class RecipeController(
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     @Operation(
         operationId = "findRecipes",
-        summary = "search recipes by parameters. Parameters are joined with AND. Is some are not present - parameters are ignored",
-        description = "search by parameters"
+        summary = "search recipes by parameters",
+        description = "Collections are joined with OR and parameters are joined with AND. " +
+                "Is some are not present - parameters are ignored. Example: ?id=1,2&name=pizza,pasta&content=123 parameters " +
+                "will be transformed to (id = 1 OR id = 2) AND (name = pizza OR name = pasta) AND content = 123"
     )
     fun find(params: RecipeRestQuery): List<RecipeDto> {
         return recipeService.find(transformer.toQuery(params)).map { transformer.toDto(it) }
@@ -37,8 +40,8 @@ class RecipeController(
         operationId = "getRecipeById",
         summary = "get recipe by id"
     )
-    fun get(@PathVariable id: RecipeId): RecipeDto? {
-        return recipeService.findById(id)?.let { transformer.toDto(it) }
+    fun get(@PathVariable id: RecipeRestId): RecipeDto? {
+        return recipeService.findById(id.toRecipeId())?.let { transformer.toDto(it) }
     }
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -47,8 +50,8 @@ class RecipeController(
         summary = "create a new recipe"
     )
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody saveCommand: RecipeRestSaveCommand): RecipeId {
-        return recipeService.create(transformer.toSaveCommand(saveCommand))
+    fun create(@RequestBody saveCommand: RecipeRestSaveCommand): RecipeRestId {
+        return RecipeRestId(recipeService.create(transformer.toSaveCommand(saveCommand)))
     }
 
     @PutMapping(UUID_PATH, consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -56,8 +59,8 @@ class RecipeController(
         operationId = "updateRecipe",
         summary = "update a recipe - fully replace it contents and the list of ingredients"
     )
-    fun update(@PathVariable id: RecipeId, @RequestBody saveCommand: RecipeRestSaveCommand) {
-        recipeService.update(id, transformer.toSaveCommand(saveCommand))
+    fun update(@PathVariable id: RecipeRestId, @RequestBody saveCommand: RecipeRestSaveCommand) {
+        recipeService.update(id.toRecipeId(), transformer.toSaveCommand(saveCommand))
     }
 
     @DeleteMapping(UUID_PATH)
@@ -66,8 +69,8 @@ class RecipeController(
         summary = "delete a recipe by id"
     )
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun delete(@PathVariable id: RecipeId) {
-        recipeService.delete(listOf(id))
+    fun delete(@PathVariable id: RecipeRestId) {
+        recipeService.delete(id.toRecipeId())
     }
 
     @DeleteMapping
@@ -76,7 +79,8 @@ class RecipeController(
         summary = "delete a list of recipes"
     )
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun delete(@RequestParam(name = "id") ids: List<RecipeId>) {
-        recipeService.delete(ids)
+    fun delete(@RequestParam ids: List<RecipeRestId>) {
+        println("deleting ids = $ids")
+        recipeService.delete(ids.map { it.toRecipeId() })
     }
 }

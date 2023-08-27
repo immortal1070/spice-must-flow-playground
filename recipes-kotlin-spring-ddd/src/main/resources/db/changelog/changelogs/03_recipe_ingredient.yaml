@@ -31,7 +31,7 @@ databaseChangeLog:
                     references: ingredient(id)
               - column:
                   name: amount
-                  type: float
+                  type: decimal
                   constraints:
                     nullable: false
               - column:

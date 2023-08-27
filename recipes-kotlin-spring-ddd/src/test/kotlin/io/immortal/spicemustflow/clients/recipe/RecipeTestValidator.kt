@@ -1,7 +1,7 @@
 package io.immortal.spicemustflow.clients.recipe
 
-import RecipeIngredientDto
 import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeDto
+import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeIngredientDto
 import io.immortal.spicemustflow.web.resources.recipe.dto.RecipeRestSaveCommand
 import org.assertj.core.api.Assertions.assertThat
 
