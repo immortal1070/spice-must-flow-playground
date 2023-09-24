@@ -1,0 +1,12 @@
+additionalProperties:
+  outputDir: openapi/output
+  fileNaming: "camelCase"
+  artifactId: output
+  serializableModel: "true"
+  dateLibrary: java8
+  npmName: open-api-js
+  sagasAndRecords: true
+  withSeparateModelsAndApi: true
+  enablePostProcessFile: true
+  apiPackage: './apipackage'
+  modelPackage: './modelpackage'
